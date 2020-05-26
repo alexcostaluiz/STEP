@@ -42,11 +42,10 @@
         <groupId>com.google.cloud.tools</groupId>
         <artifactId>appengine-maven-plugin</artifactId>
         <version>2.2.0</version>
-        <!-- TODO: uncomment configuration block and provide project ID. -->
-        <!-- <configuration>
-            <deploy.projectId>YOUR_PROJECT_ID_HERE</deploy.projectId>
+        <configuration>
+            <deploy.projectId>alexcostaluiz-step-2020</deploy.projectId>
             <deploy.version>1</deploy.version>
-        </configuration> -->
+        </configuration>
       </plugin>
     </plugins>
   </build>
