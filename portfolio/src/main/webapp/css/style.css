@@ -1,0 +1,341 @@
+.menu {
+  width: 15%;
+  display: none;
+  z-index: 5;
+}
+
+.sidebar {
+  width: 100%;
+  margin-top: 64px;
+  margin-bottom: 48px;
+  z-index: 4;
+}
+
+.sidebar .column {
+  text-align: center;
+  padding: 0px 7.5%;
+  word-wrap: break-word;
+}
+
+.sidebar a {
+  display: inline-block;
+  padding: 4px 8px;
+}
+
+.drawer {
+  width: 100%;
+  top: 0px;
+  z-index: 5;
+}
+
+.button-icon {
+  padding: 8.5px 20px 8.5px 8px;
+  width: 19px;
+  height: 19px;
+  float: left;
+}
+
+.dropdown {
+  overflow: hidden;
+  background-color: black;
+  text-align: center;
+  line-height: 2;
+}
+
+.dropdown a {
+  display: block;
+  color: white;
+}
+
+.dropdown a:first-of-type {
+  margin-top: 16px;
+}
+
+.dropdown a:last-of-type {
+  margin-bottom: 16px;
+}
+
+.toolbar {
+  background: white; 
+}
+
+.icon {
+  display: block;
+  padding: 12px;
+  margin: 0 auto;
+}
+
+.container.welcome {
+  float: none;
+}
+
+.columns.welcome {
+  margin-top: 12.5vh;
+  margin-bottom: 2vh;
+}
+
+.content {
+  margin-top: 12.5vh;
+}
+
+.bp {
+  font-size: 1.8rem;
+  text-align: justify;
+  margin-bottom: 0.8rem;
+  opacity: 0;
+}
+
+.bp + .bp:last-of-type {
+  margin-top: 3.0rem;
+  margin-bottom: 8.0rem;
+}
+
+.mesh {
+  position: relative;
+  height: 100vw;
+}
+
+.node {
+  position: absolute;
+  height: 8px;
+  width: 8px;
+  background-color: #000000;
+  border-radius: 4px;
+}
+
+.hint {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  letter-spacing: 0.1rem;
+}
+
+#try {
+  text-align: center;
+}
+
+#try:after {
+  content: "↓"
+}
+  
+.directions {
+  margin-top: 8px;
+  margin-bottom: 0px;
+  text-align: justify;
+}
+
+.directions:after {
+  content: "Press the keyboard keys within brackets to initiate the corresponding action."
+}
+
+.shape {
+  position: absolute;
+  top: 24px;
+  left: 0;
+  margin-bottom: 0px;
+  font-size: 2.2rem;
+  text-align: center;
+}
+
+.shape.fake {
+  position: static;
+  display: table;
+  margin: 24px auto 0px auto;
+  opacity: 0;
+}
+
+.function {
+  display: none;
+  text-align: center;
+  opacity: 0;
+}
+
+table.key {
+  margin-bottom: 2px;
+}
+
+table.key th {
+  padding: 4px;
+  padding-top: 12px;
+  border: none;
+}
+
+table.key td {
+  padding: 2px;
+  padding-right: 20px;
+  border: none;
+}
+
+table.socials {
+  opacity: 0;
+}
+
+table.socials td {
+  vertical-align: middle;
+  border: none;
+}
+
+table.socials img {
+  display: table-cell;
+}
+
+table.socials a {
+  margin-bottom: 0;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+/* For desktop sizing */
+@media (min-width: 720px) {
+  .menu {
+    display: inherit;
+  }
+
+  .menu .column {
+    margin-top: 10vh;
+    padding: 0px 48px;
+  }
+
+  .sidebar {
+    position: fixed;
+    width: 15%;
+    right: 0px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+  }
+
+  .sidebar .column {
+    margin-top: 10vh;
+    padding: 0px 48px;
+  }
+
+  .sidebar a {
+    display: block;
+    float: right;
+    text-align: right;
+    padding: 0px;
+    white-space: nowrap;
+    clear: both;
+  }
+ 
+  .drawer {
+    display: none;
+  }
+  
+  .container.welcome {
+    float: right;
+  }
+
+  .columns.welcome {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    display: flex;
+    height: 100vh;
+    align-items: center;
+  }
+  
+  .mesh {
+    height: 100vh;
+  }
+
+  #try {
+    text-align: right;
+  }
+
+  #try:after {
+    content: "→"
+  }
+
+  .content {
+    margin-top: 20vh;
+  }
+  
+  .content-sidebar {
+    margin-top: 20vh;
+  }
+}
+
+.hint-b {
+  display: none;
+}
+
+#interact-h {
+  display: none;
+}
+.modal {
+  display: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  #try {
+    display: none;
+  }
+    
+  .hint {
+    display: none;
+  }
+  
+  .hint-b {
+    display: inherit;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+  
+  .directions:after {
+    content: "Press the following buttons to interact with the model."
+  }
+  
+  table.key {
+    display: none !important;
+  }
+  
+  #interact-h {
+    display: block;
+    margin-top: 32px;
+    text-align: center;
+  }
+
+  .interact-b {
+    display: inline-block;
+  }
+  
+  .modal {
+    display: none;
+    opacity: 0;
+    position: fixed;
+    width: 70vw;
+    top: 25vh;
+    left: 15vw;
+    padding: 8px 0px;
+    z-index: 4;
+    color: white;
+    background-color: black;
+    border-radius: 4px;
+    border: 1px solid #bbb;
+    max-height: 50vh;
+    overflow-y: scroll;
+  }
+
+  .modal p {
+    padding: 16px 8px;
+    margin: 0px 16px;
+    margin-bottom: 0px;
+    font-style: italic;
+  }
+  
+  .screen {
+    display: none;
+    position: fixed;
+    z-index: 3;
+    top: 0px;
+    left: 0px;
+    width: 100vw;
+    height: 100vh;
+  }
+}
