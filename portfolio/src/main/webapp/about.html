@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>About</title>
+    <meta name="description" content="My Personal Webpage">
+    <meta name="author" content="Alexander Luiz Costa">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=IM+Fell+DW+Pica:400,400i&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/skeleton.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" type="image/png" href="/images/favicon.png">
+    <script src="/js/utils.js"></script>
+    <script src="/js/animations/animations.js"></script>
+    <script src="/js/navigation.js"></script>
+  </head>
+  <body>
+
+    <div class="menu container u-fixed">
+      <div class="row">
+        <div class="column">
+          <a href="/">.home</a><br>
+          <a href="/about">.about</a><br>
+          <a href="/projects">.projects</a><br>
+          <!-- <a href="/essays">.essays</a><br> -->
+          <a href="/social">.social</a><br>
+        </div>
+      </div>
+    </div>
+
+    <div class="drawer container u-fixed">
+      <div class="row">
+        <div class="column">
+          <div id="dropdown" class="dropdown" style="opacity: 0; position: absolute">
+            <a href="/">.home</a>
+            <a href="/about">.about</a>
+            <a href="/projects">.projects</a>
+            <!-- <a href="/essays">.essays</a> -->
+            <a href="/social">.social</a>
+          </div>
+          <div class="toolbar">
+            <img class="icon" onclick="toggleDropdown()" src="/images/menu.svg">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row u-flex" style="justify-content: center;">
+        <div class="ten columns content">
+          <h3 class="u-italic">hi, i'm Alexander.</h3>
+          <p class="bp" style="margin-top: 8px">I'm a computer science and statistics major at the University of Georgia and an aspiring software engineer. If I'm not busy with schoolwork, you can usually find me working on whichever <a href="/projects"><u>personal tech project</u></a> currently interests me. Even though these projects like to switch up with the seasons and evade their completion, for me there's nothing like getting lost in the flow of working on some program as hours pass by like minutes. It's a very rewarding and creative process – especially when working with technology, which enables us to achieve virtually anything we set our minds to.</p>
+          <p class="bp">This magical do-anything property of technology is what has always drawn me to it. Whenever I'm amazed by something in the world, I find it's almost always driven by technology. And the more I learn about the inner workings of these processes, the more magical and amazing they become. It's like ultimate legos: put a bunch of tiny pieces together and then all of a sudden this incredibly complex construction lies before you. And in the case of technology, this construction can change lives. Ultimately, this is my ambition: to be part of a team changing and improving people's lives with technology.</p>
+          <p class="bp">But before I bore you with more tech-talk, I'll wrap it up. When I'm not buried nose-deep in my laptop, I enjoy trying to improve my (very beginner) guitar skills or fiddling with the piano. I can also frequently be found on the tennis court – I've been playing all my life. And last, but not least, I also appreciate a good book and recently have been enjoying the challenge of keeping my suicidal houseplants alive. Anyways, thanks for reading.</p>
+          <p class="bp" style="margin-top: 24px; position: relative">&emsp;—&ensp;<img style="position: absolute; top: -12px" src="/images/signature.png" alt="signature" height="48px"></p>
+        </div>
+      </div>
+    </div>	
+	  
+    <script>fadeShiftContent()</script>
+    
+  </body>
+</html>
