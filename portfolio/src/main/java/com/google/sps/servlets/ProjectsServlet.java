@@ -31,14 +31,14 @@ public class ProjectsServlet extends HttpServlet {
     
     String project = request.getPathInfo();
     
-    // let the default project be the UGA Dining project
+    // Default project is UGA Dining project.
     if (project == null || project.equals("/")) {
       project = "/ugadining";
     }
     
-    // gather the project content (title and description) which will be
-    // inserted into the projects template page
-    List<String> content;
+    // Gather the project content (title and description) which will be
+    // inserted into the projects template page.
+    List<String> content = new ArrayList<>();
     switch (project) {
     case "/ugadining":
     case "/portflagship":
@@ -51,12 +51,11 @@ public class ProjectsServlet extends HttpServlet {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
       return;
     }
-
+    
     List<String> template = Files.readAllLines(Paths.get("projects.html"),
-                                           StandardCharsets.UTF_8);
-
-    // assemble the response
-    for (String line : template) {      
+                                               StandardCharsets.UTF_8);
+    
+    for (String line : template) {
       response.getWriter().println(line);
       
       if (line.trim().equals("<div class=\"ten columns content-sidebar\">")) {
