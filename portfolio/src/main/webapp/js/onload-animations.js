@@ -31,7 +31,7 @@ window.addEventListener("DOMContentLoaded", () => {
  */
 function fadeShiftContent() {
     const body = document.querySelectorAll(".bp")
-    for (var i = 0; i < body.length; i++) {
+    for (let i = 0; i < body.length; i++) {
         body[i].id = "bp" + i
         Animator.queue(new FadeShift(body[i], 1, 0.1, 'y', 24, 0, -1.6))
     }
@@ -45,7 +45,7 @@ function fadeShiftContent() {
  */
 function fadeShiftSidebar() {
     const links = document.querySelectorAll("[sidebar]")
-    for (var i = 0; i < links.length; i++) {
+    for (let i = 0; i < links.length; i++) {
         links[i].id = "sidebar" + i
         Animator.queue(new FadeShift(links[i], 1, 0.1, "x", 24, 0, -1.6), i * 100)
     }
