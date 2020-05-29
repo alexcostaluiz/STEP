@@ -14,6 +14,7 @@
     <script src="/js/utils.js"></script>
     <script src="/js/animations/animations.js"></script>
     <script src="/js/navigation.js"></script>
+    <script src="/js/onload-animations.js"></script>
   </head>
   <body>
 
@@ -23,7 +24,6 @@
           <a href="/">.home</a><br>
           <a href="/about">.about</a><br>
           <a href="/projects">.projects</a><br>
-          <!-- <a href="/essays">.essays</a><br> -->
           <a href="/social">.social</a><br>
         </div>
       </div>
@@ -36,7 +36,6 @@
             <a href="/">.home</a>
             <a href="/about">.about</a>
             <a href="/projects">.projects</a>
-            <!-- <a href="/essays">.essays</a> -->
             <a href="/social">.social</a>
           </div>
           <div class="toolbar">
@@ -69,11 +68,5 @@
         </div>
       </div>
     </div>
-
-    <script>
-      var socials = document.querySelector(".socials")
-      Animator.queue(new FadeShift(socials, 1, 0.1, 'y', 24, 0, -1.6))
-    </script>
-
   </body>
 </html>
