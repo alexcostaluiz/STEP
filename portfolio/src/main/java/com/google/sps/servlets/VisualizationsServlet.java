@@ -31,14 +31,14 @@ public class VisualizationsServlet extends HttpServlet {
     
     String visualization = request.getPathInfo();
 
-    // let the default visualzation be the sorting visualizations
+    // Default visualization is sorting visualization.
     if (visualization == null || visualization.equals("/")) {
       visualization = "/sorting";
     }
 
-    // gather the visualizations content which will be
-    // inserted into the visualizations template page
-    List<String> content;
+    // Gather the visualizations content which will be inserted into
+    // the visualizations template page.
+    List<String> content = new ArrayList<>();
     switch (visualization) {
     case "/sorting":
     case "/searching":
@@ -53,7 +53,6 @@ public class VisualizationsServlet extends HttpServlet {
     List<String> template = Files.readAllLines(Paths.get("visualizations.html"),
                                                StandardCharsets.UTF_8);
 
-    // assemble the response
     for (String line : html) {
       response.getWriter().println(line);
       
