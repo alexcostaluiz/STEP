@@ -26,37 +26,43 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebFilter("/*")
 public class RewriteURLFilter implements Filter {
+
+  // Must provide concrete implementation to avoid AbstractMethodError.
   @Override
   public void init(FilterConfig config) throws ServletException {}
   
   @Override
   public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
     throws ServletException, IOException {
-    HttpServletRequest request = (HttpServletRequest) req;
-    HttpServletResponse response = (HttpServletResponse) res;
-    String uri = request.getRequestURI();
+    if (req instanceof HttpServletRequest && res instanceof HttpServletResponse) {
+      HttpServletRequest request = (HttpServletRequest) req;
+      HttpServletResponse response = (HttpServletResponse) res;
+      String uri = request.getRequestURI();
 
-    // client-side forwarding (modifies url of client browser)
-    if (uri.contains(".html")) {
-      response.sendRedirect(uri.replace(".html", ""));
-      return;
-    }
-    if (uri.endsWith("/") && !uri.equals("/")) {
-      response.sendRedirect(uri.substring(0, uri.length() - 1));
-      return;
-    }
+      // Client-side forwarding (modifies url of client browser).
+      if (uri.contains(".html")) {
+        response.sendRedirect(uri.replace(".html", ""));
+        return;
+      }
+      if (uri.endsWith("/") && !uri.equals("/")) {
+        response.sendRedirect(uri.substring(0, uri.length() - 1));
+        return;
+      }
 
-    // server-side forwarding (will not change url of client browser)
-    // dynamic pages (e.g. /projects) are handled by a servlet
-    switch (uri) {
-    case "/index":
-    case "/about":
-    case "/social":
-      request.getRequestDispatcher(uri + ".html").forward(req, res);
-      break;
-    default:
+      // Server-side forwarding (will not change url of client browser).
+      // Dynamic pages (e.g. /projects) are handled by a servlet.
+      switch (uri) {
+      case "/index":
+      case "/about":
+      case "/social":
+        request.getRequestDispatcher(uri + ".html").forward(req, res);
+        break;
+      default:
+        chain.doFilter(req, res);
+        break;
+      }
+    } else {
       chain.doFilter(req, res);
-      break;
     }
   }
 }
