@@ -14,6 +14,9 @@
     <script src="/js/utils.js"></script>
     <script src="/js/animations/animations.js"></script>
     <script src="/js/navigation.js"></script>
+    <script src="/js/3dmodeling/point.js"></script>
+    <script src="/js/3dmodeling/shapes.js"></script>
+    <script src="/js/3dmodeling/3dmodel.js"></script>
   </head>
   <body>
     
@@ -23,7 +26,6 @@
           <a href="/">.home</a><br>
           <a href="/about">.about</a><br>
           <a href="/projects">.projects</a><br>
-          <!-- <a href="/essays">.essays</a><br> -->
           <a href="/social">.social</a><br>
         </div>
       </div>
@@ -36,7 +38,6 @@
             <a href="/">.home</a>
             <a href="/about">.about</a>
             <a href="/projects">.projects</a>
-            <!-- <a href="/essays">.essays</a> -->
             <a href="/social">.social</a>
           </div>
           <div class="toolbar">
@@ -47,9 +48,6 @@
     </div>
     
     <div onclick="closeModal()" class="screen"></div>
-    <script src="/js/3dmodeling/point.js"></script>
-    <script src="/js/3dmodeling/shapes.js"></script>
-    <script src="/js/3dmodeling/3dmodel.js"></script>
     <div class="container welcome" style="width: 85%">
       <div class="row">
         <div class="three columns welcome">
@@ -109,7 +107,7 @@
 	            </tbody>
             </table>
             <div id="interact-h">
-	            <button onclick="Animator.queue(new Morph(shape, getShape(-1)))" class="interact-b">morph</button>
+	            <button onclick="randomMorph()" class="interact-b">morph</button>
 	            <button onclick="toggleAutoRotate()" class="interact-b">pause/play</button>
 	            <button onclick="selectShape()" class="interact-b">select</button>
 	            <button onclick="exitInteractive()" class="interact-b">exit</button>
