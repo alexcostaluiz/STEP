@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">  
+  <head>
+    <meta charset="utf-8">
+    <title>Alexander Costa</title>
+    <meta name="description" content="My Personal Webpage">
+    <meta name="author" content="Alexander Luiz Costa">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=IM+Fell+DW+Pica:400,400i&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/skeleton.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" type="image/png" href="/images/favicon.png">
+    <script src="/js/utils.js"></script>
+    <script src="/js/animations/animations.js"></script>
+    <script src="/js/navigation.js"></script>
+    <script src="/js/3dmodeling/point.js"></script>
+    <script src="/js/3dmodeling/shapes.js"></script>
+    <script src="/js/3dmodeling/3dmodel.js"></script>
+  </head>
+  <body>
+    
+    <div class="menu container u-fixed">
+      <div class="row">
+        <div class="column">
+          <a href="/">.home</a><br>
+          <a href="/about">.about</a><br>
+          <a href="/projects">.projects</a><br>
+          <a href="/social">.social</a><br>
+        </div>
+      </div>
+    </div>
+
+    <div class="drawer container u-fixed">
+      <div class="row">
+        <div class="column">
+          <div id="dropdown" class="dropdown" style="opacity: 0; position: absolute">
+            <a href="/">.home</a>
+            <a href="/about">.about</a>
+            <a href="/projects">.projects</a>
+            <a href="/social">.social</a>
+          </div>
+          <div class="toolbar">
+            <img class="icon" onclick="toggleDropdown()" src="/images/menu.svg">
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div onclick="closeModal()" class="screen"></div>
+    <div class="container welcome" style="width: 85%">
+      <div class="row">
+        <div class="three columns welcome">
+          <div welcome id="welcome" style="opacity: 1">
+            <h2 class="u-italic">welcome.</h2>
+            <p class="u-justify">to the personal webpage of Alexander Costa, a showcase of my personal projects and works.</p>
+	          <p id="try" class="u-italic" style="opacity: 0.5;">try hovering </p>
+	        </div>
+	        <div interactive id="interactive" style="opacity: 0; display: none">
+	          <h3 class="u-italic">interactive mode</h3>
+            <p class="directions"></p>
+            <table class="key">
+	            <tbody>
+	              <th>commands</th>
+ 	              <tr>
+	                <td>[m]</td>
+	                <td>morph (randomized)</td>
+	              </tr>
+	              <tr>
+	                <td>[p]</td>
+	                <td>pause/play auto-rotate</td>
+	              </tr>
+	              <tr>
+	                <td>[0-9]</td>
+	                <td>select form</td>
+	              </tr>
+	              <tr>
+	                <td>[⇧]+[0-9]</td>
+	                <td>more forms</td>
+	              </tr>
+	              <tr>
+	                <td>[esc]</td>
+	                <td>exit</td>
+	              </tr>
+	              <th>rotate</th>
+	              <tr>
+	                <td>[a], [d]</td>
+	                <td>y-axis</td>
+	              </tr>
+	              <tr>
+	                <td>[w], [s]</td>
+	                <td>x-axis</td>
+	              </tr>
+	              <tr>
+	                <td>[z], [x]</td>
+	                <td>z-axis</td>
+	              </tr>
+	              <th>legend</th>
+	              <tr>
+	                <td>all number keys</td>
+	                <td>[0-9]</td>
+	              </tr>
+	              <tr>
+	                <td>the SHIFT key</td>
+	                <td>[⇧]</td>
+	              </tr>
+	            </tbody>
+            </table>
+            <div id="interact-h">
+	            <button onclick="randomMorph()" class="interact-b">morph</button>
+	            <button onclick="toggleAutoRotate()" class="interact-b">pause/play</button>
+	            <button onclick="selectShape()" class="interact-b">select</button>
+	            <button onclick="exitInteractive()" class="interact-b">exit</button>
+            </div>
+            <div id="shape-select-modal" class="modal"></div>
+          </div>
+        </div>
+        <div id="mesh" class="nine columns mesh">
+          <p id="hint" class="hint u-italic" style="opacity: 0">press “i” to enter interactive mode</p>
+	        <button id="hint-b" onclick="enterInteractive()" class="hint-b" style="opacity: 1">interactive mode</button>
+          <p id="shape-name" class="shape u-italic"></p>
+	        <span id="shape-name-fake" class="shape fake u-italic"></span>
+        </div>
+      </div>
+    </div>
+  </body>
+</hmtl>
