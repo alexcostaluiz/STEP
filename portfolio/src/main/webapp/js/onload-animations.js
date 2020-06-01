@@ -9,7 +9,7 @@
  * Starts the appropriate page load animations on DOMContentLoaded
  * event.
  */
-window.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
   if (document.querySelector('.bp')) {
     fadeShiftContent();
   }
