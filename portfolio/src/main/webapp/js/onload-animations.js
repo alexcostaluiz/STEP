@@ -30,7 +30,15 @@ function fadeShiftContent() {
   const body = document.querySelectorAll('.bp');
   for (let i = 0; i < body.length; i++) {
     body[i].id = 'bp' + i;
-    Animator.queue(new FadeShift(body[i], 1, 0.1, 'y', 24, 0, -1.6));
+    Animator.queue(new FadeShift(
+      /* node= */ body[i],
+      /* fadeTo= */ 1,
+      /* fadeStep= */ 0.1,
+      /* shiftAxis= */ 'y',
+      /* shiftFrom= */ 24,
+      /* shiftTo= */ 0,
+      /* shiftStep */ -1.6,
+    ));
   }
 }
 
@@ -41,7 +49,15 @@ function fadeShiftSidebar() {
   const links = document.querySelectorAll('[sidebar]');
   for (let i = 0; i < links.length; i++) {
     links[i].id = 'sidebar' + i;
-    Animator.queue(new FadeShift(links[i], 1, 0.1, 'x', 24, 0, -1.6), i * 100);
+    Animator.queue(new FadeShift(
+      /* node= */ links[i],
+      /* fadeTo= */ 1,
+      /* fadeStep= */ 0.1,
+      /* shiftAxis= */ 'x',
+      /* shiftFrom= */ 24,
+      /* shiftTo= */ 0,
+      /* shiftStep */ -1.6,
+    ), /* delay= */ i * 100);
   }
 }
 
@@ -50,5 +66,13 @@ function fadeShiftSidebar() {
  */
 function fadeShiftSocials() {
   const socials = document.querySelector('.socials');
-  Animator.queue(new FadeShift(socials, 1, 0.1, 'y', 24, 0, -1.6));
+  Animator.queue(new FadeShift(
+    /* node= */ socials,
+    /* fadeTo= */ 1,
+    /* fadeStep= */ 0.1,
+    /* shiftAxis= */ 'y',
+    /* shiftFrom= */ 24,
+    /* shiftTo= */ 0,
+    /* shiftStep */ -1.6,
+  ));
 }
