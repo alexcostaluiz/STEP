@@ -146,7 +146,6 @@ class Shape {
    */
   computeDistance(form) {
     let diff = form.points.length - this.points.length;
-    console.log(diff);
     
     // Add extra points deep in z-axis if necessary.
     for (let i = 0; i < diff; i++) {
