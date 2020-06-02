@@ -1,0 +1,23 @@
+<link rel="stylesheet" href="/css/visualizations/style.css">
+<script src="/js/visualizations/sort.js"></script>
+
+<h3 class="u-italic">Sorting Algorithms</h3>
+<div id="panel">
+  <button onclick="drawArray(g_size)">Generate</button>
+  <div>
+    <p>size</p>
+    <input id="slider-size" type="range" min="2" max="100" value="20" oninput="updateSize(this.value)" class="slider">
+  </div>  
+  <div>
+    <p>speed</p>
+    <input id="slider-speed" type="range" min="10" max="1000" value="100" oninput="updateSpeed(this.value)" class="slider">
+  </div>
+  <button id="algo-button" onclick="openSelectAlgorithm()" style="padding-right: 0px">BubbleSort
+    <img height="12" width="12" class="button-icon" style="float: right; padding: 8.5px 8px 8.5px 20px" src="/images/arrow_down.svg">
+  </button>
+  <div id="algo-select">
+  </div>
+  <button onclick="sort()" class="button-primary">Sort</button>
+</div>
+<div id="array">
+</div>
