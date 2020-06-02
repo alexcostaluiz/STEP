@@ -43,7 +43,7 @@ window.addEventListener("load", () => {
   dropdown = document.querySelector(".dropdown");
   
   if (dropdownHeight === 0 && getComputedStyle(drawer).display !== "none") {
-	  initDropdown();
+    initDropdown();
   }
 });
 
@@ -53,7 +53,7 @@ window.addEventListener("load", () => {
  */
 window.addEventListener("resize", () => {
   if (dropdownHeight === 0 && getComputedStyle(drawer).display !== "none") {
-	  initDropdown();
+    initDropdown();
   }
 });
 
@@ -97,31 +97,31 @@ class ToggleDropdown extends Animation {
    *     of this animation. Must be positive.
    */
   constructor(dropdown, height, open, step) {
-	  super(dropdown);
-	  this.height = height;
-	  this.open = open;
-	  this.step = (open) ? -step : step;
+    super(dropdown);
+    this.height = height;
+    this.open = open;
+    this.step = (open) ? -step : step;
   }
 
   /** @override */
   anim() {
-	  const curr = +this.node.style.height
+    const curr = +this.node.style.height
           .substr(0, this.node.style.height.length-2);
-	  const dest = (this.open) ? 0 : this.height;
-	  const start = (this.open) ? this.height : 0;
+    const dest = (this.open) ? 0 : this.height;
+    const start = (this.open) ? this.height : 0;
 
-	  if (curr === dest) {
-	    return true;
-	  }
+    if (curr === dest) {
+      return true;
+    }
 
     const progress = Math.abs((dest - (curr - this.step / 100)) / (dest - start));
-	  let newHeight = curr + (this.step * progress);
+    let newHeight = curr + (this.step * progress);
 
     if (!this.open && newHeight > this.height ||
         this.open && newHeight < 0) {
       newHeight = dest;
     }
     
-	  this.node.style.height = newHeight + "px";
+    this.node.style.height = newHeight + "px";
   }
 }
