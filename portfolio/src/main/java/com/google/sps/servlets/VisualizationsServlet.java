@@ -53,7 +53,7 @@ public class VisualizationsServlet extends HttpServlet {
     List<String> template = Files.readAllLines(Paths.get("visualizations.html"),
                                                StandardCharsets.UTF_8);
 
-    for (String line : html) {
+    for (String line : template) {
       response.getWriter().println(line);
       
       if (line.trim().equals("<div class=\"ten columns content-sidebar\">")) {
