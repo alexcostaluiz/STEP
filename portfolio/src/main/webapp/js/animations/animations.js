@@ -30,22 +30,22 @@ class Animator {
    *     `Animation#then({function(): undefined})`.
    */
   static queue(anim, delay) {
-	  if (delay !== undefined) {
-	    setTimeout(() => {
-		    this.queue(anim)
-	    }, delay);
+    if (delay !== undefined) {
+      setTimeout(() => {
+        this.queue(anim);
+      }, delay);
       return anim;
-	  } else {
-	    if (anim instanceof Animation) {
-		    this.cancel(anim.ids, anim.constructor);
-		    const i = window.requestAnimationFrame(anim.run);
-		    animations[[anim.node.id, anim.constructor.name]] = i;
+    } else {
+      if (anim instanceof Animation) {
+        this.cancel(anim.ids, anim.constructor);
+        const i = window.requestAnimationFrame(anim.run);
+        animations[[anim.node.id, anim.constructor.name]] = i;
         return anim;
-	    }
-	    else {
+      }
+      else {
         throw new Error('Error: specified animation must inherit from Animation class');
       }
-	  }
+    }
   }
 
   /**
@@ -61,16 +61,16 @@ class Animator {
    *     is an instance of the CrossFade class).
    */
   static cancel(ids, anim) {
-	  if (typeof ids === 'string') {
-	    window.cancelAnimationFrame(animations[[ids, anim.name]]);
-	    delete animations[[ids, anim.name]];
-	  } else {
-	    for (let i = 0; i < ids.length; i++) {
-		    const id = ids[i];
-		    window.cancelAnimationFrame(animations[[id, anim.name]]);
-		    delete animations[[id, anim.name]];
-	    }
-	  }
+    if (typeof ids === 'string') {
+      window.cancelAnimationFrame(animations[[ids, anim.name]]);
+      delete animations[[ids, anim.name]];
+    } else {
+      for (let i = 0; i < ids.length; i++) {
+        const id = ids[i];
+        window.cancelAnimationFrame(animations[[id, anim.name]]);
+        delete animations[[id, anim.name]];
+      }
+    }
   }
 
   /**
@@ -80,12 +80,12 @@ class Animator {
    *     canceled.
    */
   static cancelAll(id) {
-	  for (let key in animations) {
-	    if (key.includes(id)) {
-		    window.cancelAnimationFrame(animations[key]);
-		    delete animations[key];
-	    }
-	  }
+    for (let key in animations) {
+      if (key.includes(id)) {
+        window.cancelAnimationFrame(animations[key]);
+        delete animations[key];
+      }
+    }
   }
 
   /**
@@ -97,12 +97,12 @@ class Animator {
    *     otherwise.
    */
   static check(id) {
-	  for (let key in animations) {
-	    if (key.includes(id)) {
-		    return true;
-	    }
-	  }
-	  return false;
+    for (let key in animations) {
+      if (key.includes(id)) {
+        return true;
+      }
+    }
+    return false;
   } 
 }
 
@@ -125,17 +125,17 @@ class Animation {
    *     simply serve as a unique identifier for this animation.
    */
   constructor(node) {
-	  if (this.constructor === Animation) {
-	    throw new TypeError('Abstract class "Animation" cannot be instantiated.');
-	  }    
-	  if (node.id === '') {
-	    throw new TypeError('DOM element "node" must have an explicitly assigned id.');
-	  }
+    if (this.constructor === Animation) {
+      throw new TypeError('Abstract class "Animation" cannot be instantiated.');
+    }    
+    if (node.id === '') {
+      throw new TypeError('DOM element "node" must have an explicitly assigned id.');
+    }
 
-	  this.node = node;
+    this.node = node;
 
     /** @type {string} */
-	  this.ids = [node.id];
+    this.ids = [node.id];
 
     /** @type {function(): undefined} */
     this.run = () => void this.animWrapper();
@@ -163,16 +163,16 @@ class Animation {
    * return value of `Animation#anim()`.
    */
   animWrapper() {
-	  const complete = this.anim();
-	  if (complete) {
-	    Animator.cancel(this.ids, this.constructor);
-	    if (this.after !== undefined) {
-		    this.after();
-	    }
-	  } else {
-	    const i = window.requestAnimationFrame(this.run);
-	    animations[[this.node.id, this.constructor.name]] = i;
-	  }
+    const complete = this.anim();
+    if (complete) {
+      Animator.cancel(this.ids, this.constructor);
+      if (this.after !== undefined) {
+        this.after();
+      }
+    } else {
+      const i = window.requestAnimationFrame(this.run);
+      animations[[this.node.id, this.constructor.name]] = i;
+    }
   }
 
   /**
@@ -182,7 +182,7 @@ class Animation {
    * animation has finished.
    */
   then(after) {
-	  this.after = after;
+    this.after = after;
   }
 }
 
@@ -201,20 +201,20 @@ class Fade extends Animation {
    *     may be positive or negative (e.g. 0.1). 
    */
   constructor(node, fadeTo, step) {
-	  super(node);
-	  this.fadeTo = fadeTo;
-	  this.step = step;
+    super(node);
+    this.fadeTo = fadeTo;
+    this.step = step;
   }
 
   /** @override */
   anim() {
-	  let complete = true;
-	  try {
-	    complete = this.stepFade(this.node, this.fadeTo, this.step);
-	  } catch (e) {
+    let complete = true;
+    try {
+      complete = this.stepFade(this.node, this.fadeTo, this.step);
+    } catch (e) {
       console.error(e);
     }
-	  return complete;
+    return complete;
   }
   
   /**
@@ -230,18 +230,18 @@ class Fade extends Animation {
    * @return {boolean} True if node has reached `fadeTo`; false otherwise.
    */
   stepFade(node, fadeTo, step) {
-	  const opacity = +node.style.opacity;
-	  
-	  if (fadeTo < opacity && step > 0 ||
+    const opacity = +node.style.opacity;
+    
+    if (fadeTo < opacity && step > 0 ||
         fadeTo > opacity && step < 0) {
-	    throw new Error('Error: step is incompatible with fadeTo (infinite loop).');
-	  }
-	  
-	  if (opacity === fadeTo) {
+      throw new Error('Error: step is incompatible with fadeTo (infinite loop).');
+    }
+    
+    if (opacity === fadeTo) {
       return true;
     }
-	  
-	  const newOpacity = opacity + step;
+    
+    const newOpacity = opacity + step;
     if (step < 0 && newOpacity < fadeTo ||
         step > 0 && newOpacity > fadeTo) {
       node.style.opacity = fadeTo;
@@ -249,7 +249,7 @@ class Fade extends Animation {
       node.style.opacity = newOpacity;
     }
     
-	  return false;
+    return false;
   }
 }
 
@@ -269,8 +269,8 @@ class CrossFade extends Fade {
    *     may be positive or negative (e.g. 0.1).
    */
   constructor(node, otherNode, fadeTo, step) {
-	  super(node, fadeTo, step);
-	  this.otherNode = otherNode;
+    super(node, fadeTo, step);
+    this.otherNode = otherNode;
     this.ids.push(otherNode.id);
 
     /**
@@ -279,38 +279,38 @@ class CrossFade extends Fade {
      * 
      * @type {boolean}
      */
-	  this.flip = false;
+    this.flip = false;
   }
 
   /** @override */
   anim() {
-	  if (!this.flip) {
-	    let complete = true;
+    if (!this.flip) {
+      let complete = true;
       
-	    try {
-		    complete = this.stepFade(this.node, /* fadeTo= */ 0.0, -this.step);
-	    } catch (e) {
+      try {
+        complete = this.stepFade(this.node, /* fadeTo= */ 0.0, -this.step);
+      } catch (e) {
         console.error(e);
       }
 
       // `node` has been transitioned out of view
-	    if (complete) {
-		    this.flip = true;
-		    this.node.style.display = 'none';
-		    this.otherNode.style.display = 'block';
-		    const temp = this.node;
-		    this.node = this.otherNode;
-		    this.otherNode = temp;
-	    }
-	  } else {
-	    let complete = true;
-	    try {
-		    complete = this.stepFade(this.node, this.fadeTo, this.step);
-	    } catch (e) {
+      if (complete) {
+        this.flip = true;
+        this.node.style.display = 'none';
+        this.otherNode.style.display = 'block';
+        const temp = this.node;
+        this.node = this.otherNode;
+        this.otherNode = temp;
+      }
+    } else {
+      let complete = true;
+      try {
+        complete = this.stepFade(this.node, this.fadeTo, this.step);
+      } catch (e) {
         console.error(e);
       }
-	    return complete;
-	  }
+      return complete;
+    }
   }
 }
 
@@ -338,9 +338,9 @@ class FadeShift extends Fade {
    *     wish for the fade and shift to end at different times.
    */
   constructor(node, fadeTo, fadeStep, shiftAxis, shiftFrom, shiftTo, shiftStep) {
-	  super(node, fadeTo, fadeStep);
-	  this.shiftFrom = shiftFrom;
-	  this.shiftTo = shiftTo;
+    super(node, fadeTo, fadeStep);
+    this.shiftFrom = shiftFrom;
+    this.shiftTo = shiftTo;
     
     if (/[XxYy]/g.test(shiftAxis)) {
       this.shiftAxis = shiftAxis.toUpperCase();
@@ -358,15 +358,15 @@ class FadeShift extends Fade {
   /** @override */
   anim() {
     const fadeComplete = true;
-	  const shiftComplete = true;
-	  try {
-	    fadeComplete = this.stepFade(this.node, this.fadeTo, this.step);
-	    shiftComplete = this.stepShift(this.node, this.shiftAxis,
+    const shiftComplete = true;
+    try {
+      fadeComplete = this.stepFade(this.node, this.fadeTo, this.step);
+      shiftComplete = this.stepShift(this.node, this.shiftAxis,
                                      this.shiftTo, this.shiftStep);
-	  } catch (e) {
+    } catch (e) {
       console.error(e);
     }
-	  return fadeComplete && shiftComplete;
+    return fadeComplete && shiftComplete;
   }
 
   /** 
@@ -376,11 +376,11 @@ class FadeShift extends Fade {
    * @return {number} A shiftStep that matches the fade timing.
    */
   computeShiftStep() {
-	  const currOpacity = +this.node.style.opacity;
-	  const diff = this.fadeTo - currOpacity;
-	  const numIterations = diff / this.step;
-	  
-	  return (this.shiftTo - this.shiftFrom) / numIterations;
+    const currOpacity = +this.node.style.opacity;
+    const diff = this.fadeTo - currOpacity;
+    const numIterations = diff / this.step;
+    
+    return (this.shiftTo - this.shiftFrom) / numIterations;
   }
   
   /**
@@ -394,26 +394,26 @@ class FadeShift extends Fade {
    *     otherwise
    */
   stepShift(node, axis, shiftTo, step) {
-	  const curr = this.shiftCurr;
-	  
-	  if (shiftTo < curr && step > 0 ||
+    const curr = this.shiftCurr;
+    
+    if (shiftTo < curr && step > 0 ||
         shiftTo > curr && step < 0) {
-	    throw 'Error: step is incompatible with fadeTo (infinite loop).';
-	  }
-	  
-	  if (curr === shiftTo) {
+      throw 'Error: step is incompatible with fadeTo (infinite loop).';
+    }
+    
+    if (curr === shiftTo) {
       return true;
     }
 
     const progress = Math.abs((shiftTo - curr) / (shiftTo - this.shiftFrom));
-	  let newShift = curr + (step * progress) + (step / 10);
+    let newShift = curr + (step * progress) + (step / 10);
     if (step < 0 && newShift < shiftTo ||
         step > 0 && newShift > shiftTo) {
       newShift = shiftTo;
     }
-	  node.style.transform = 'translate' + axis + '(' + newShift + 'px)';
-	  this.shiftCurr = newShift;
+    node.style.transform = 'translate' + axis + '(' + newShift + 'px)';
+    this.shiftCurr = newShift;
     
-	  return false;
+    return false;
   }
 }
