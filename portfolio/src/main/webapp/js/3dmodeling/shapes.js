@@ -514,34 +514,6 @@ class Ray extends Shape {
   }
 }
 
-/* a mesh-like shape, basically a 3D graph of a 3D function
-class Mesh extends Shape {
-  constructor(parent, func) {
-    super(parent)
-    this.name = "mesh"
-
-    if (func == undefined) {
-      func = Math.floor(Math.random() * functions.length)
-    }
-    
-    this.func = functions[func]
-    
-    var count = 0
-    for (var x = -0.7; x < 0.7; x += 0.04375) {
-      for (var z = -0.7; z < 0.7; z += 0.04375) {
-        if (count % pointCountScale !== 0) {
-          count++
-          continue
-        }
-        var y = functions[func](x, z)
-        if (y != undefined) super.add(new Point(x, y, z, parent))
-        count++
-      }
-    }
-  }
-}
-*/
-
 /**
  * A torus (donut).
  */
@@ -685,6 +657,30 @@ class Shell extends Shape {
   }
 }
 
+/** 
+ * A mesh-like shape (a 3D graph of a 3D function).
+ */
+class Mesh extends Shape {
+  constructor(parent, func) {
+    super(parent);
+    this.name = "mesh";
+
+    if (func === undefined) {
+      func = Math.floor(Math.random() * functions.length);
+    }
+    this.func = functions[func];
+    
+    for (let x = -0.7; x < 0.7; x += 0.04375) {
+      for (let z = -0.7; z < 0.7; z += 0.04375) {
+        const y = this.func(x, z);
+        if (y !== undefined) {
+          super.add(new Point(x, y, z, parent));
+        }
+      }
+    }
+  }
+}
+
 /**
  * 1000 randomly positioned points.
  */
@@ -711,7 +707,8 @@ class Singularity extends Shape {
 const shapes = [
   Cube, Sphere, FullSphere, SpiralSphere,
   NoisySphere, Disk, Ray, Torus, TwistedTorus,
-  HornTorus, Tori, Cylinder, Shell, Singularity,
+  HornTorus, Tori, Cylinder, Shell, Mesh,
+  Singularity,
 ];
 
 /**
@@ -739,21 +736,18 @@ function getShape(i, parent) {
 }
 
 /*
- * Default mesh functions.
-
-const a = function (x, z) {
-  return Math.sin(-Math.pow(x * 2.2, 2) + Math.pow(z * 3, 2)) * (x / 1.5)
-}
-
-const b = function (x, z) {
-  return (17.5 * x * z) / Math.exp((Math.pow(x * 2.5, 2)) + (Math.pow(z * 2.5, 2)))
-}
-
-const c = function (x, z) {
-  var y = 1/((Math.pow(x, 2) + Math.pow(z, 2)) * 12 + 0.0625) * 0.5 - 0.33
-  return (y >= 1) ? undefined : y
-}
-
-var functions = [a, b, c]
-
+ * Mesh functions.
  */
+const meshFunc1 = function (x, z) {
+  return Math.sin(-Math.pow(x * 2.2, 2) + Math.pow(z * 3, 2)) * (x / 1.5);
+}
+const meshFunc2 = function (x, z) {
+  return (17.5 * x * z) / Math.exp((Math.pow(x * 2.5, 2)) + (Math.pow(z * 2.5, 2)));
+}
+
+/**
+ * All the mesh functions.
+ * 
+ * @type {!Array<function(number, number): number>}
+ */
+const functions = [meshFunc1, meshFunc2];
