@@ -515,6 +515,25 @@ class Ray extends Shape {
 }
 
 /**
+ * Two crescent shapes.
+ */
+class Crescents extends Shape {
+  constructor(parent) {
+    super(parent);
+    this.name = "kissing crescents";
+    const step = 0.001;
+    for (let i = 0; i < 1; i += step) {
+      const v = i;
+      const u = 120 * v;
+      const x = (2 + Math.sin(2* Math.PI* u) *Math.sin(2 *Math.PI* v)) *Math.sin(3* Math.PI *v) * 0.3;
+      const y = (2 + Math.sin(2* Math.PI *u) *Math.sin(2 *Math.PI *v)) *Math.cos(3* Math.PI *v) * 0.3;
+      const z = (Math.cos(2* Math.PI *u) * Math.sin(2* Math.PI* v) + 4 *v - 2) * 0.3;
+      super.add(new Point(x, y, z, parent));
+    }
+  }
+}
+
+/**
  * A torus (donut).
  */
 class Torus extends Shape {
@@ -706,9 +725,9 @@ class Singularity extends Shape {
  */
 const shapes = [
   Cube, Sphere, FullSphere, SpiralSphere,
-  NoisySphere, Disk, Ray, Torus, TwistedTorus,
-  HornTorus, Tori, Cylinder, Shell, Mesh,
-  Singularity,
+  NoisySphere, Disk, Ray, Crescents, Torus,
+  TwistedTorus, HornTorus, Tori, Cylinder,
+  Shell, Mesh, Singularity,
 ];
 
 /**
