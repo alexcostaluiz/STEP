@@ -96,14 +96,14 @@ let deviceIsPrimaryTouch = false;
  * 
  * @param {?Shape}
  */
-let currentShape;
+let currentShape = undefined;
 
 /*
  * Initialize the program.
  */
-window.addEventListener("load", () => {
-  deviceIsPrimaryTouch = getComputedStyle(document.querySelector(".hint-b"))
-    .display !== "none";
+window.addEventListener('load', () => {
+  deviceIsPrimaryTouch = getComputedStyle(document.querySelector('.hint-b'))
+    .display !== 'none';
 
   init3DModel();
   initTouchAccessibility();
@@ -113,32 +113,32 @@ window.addEventListener("load", () => {
  * Initializes the 3D modeling program.
  */
 function init3DModel() {
-  const viewport = document.querySelector(".mesh");
+  const viewport = document.querySelector('.mesh');
   set3DViewportAspectRatio(viewport);
   
   // Initialize listeners.
-  window.addEventListener("mousemove", (event) => {
+  window.addEventListener('mousemove', (event) => {
     mouseX = event.pageX;
     mouseY = event.pageY;
   });
 
-  window.addEventListener("resize", () => {
+  window.addEventListener('resize', () => {
     set3DViewportAspectRatio(viewport);
-    const shapeName = document.querySelector(".shape");
-    const shapeNameFake = document.querySelector(".shape.fake");
-    shapeName.style.left = shapeNameFake.offsetLeft + "px";
+    const shapeName = document.querySelector('.shape');
+    const shapeNameFake = document.querySelector('.shape.fake');
+    shapeName.style.left = shapeNameFake.offsetLeft + 'px';
   });
 
-  viewport.addEventListener("mouseenter", () => {
+  viewport.addEventListener('mouseenter', () => {
     if (!interactiveModeEnabled) {
-      const hint = document.querySelector(".hint");
+      const hint = document.querySelector('.hint');
       Animator.queue(new Fade(hint, 0.5, 0.05));
     }
   });
 
-  viewport.addEventListener("mouseleave", () => {
+  viewport.addEventListener('mouseleave', () => {
     if (!interactiveModeEnabled) {
-      const hint = document.querySelector(".hint");
+      const hint = document.querySelector('.hint');
       Animator.queue(new Fade(hint, 0.0, -0.05));
     }
   });
@@ -176,16 +176,16 @@ function set3DViewportAspectRatio(viewport) {
  * touch (tablets/phones).
  */
 function initTouchAccessibility() {
-  const shapeSelectModal = document.querySelector(".modal");
+  const shapeSelectModal = document.querySelector('.modal');
   
   for (let i = 0; i < shapes.length - 1; i++) {
-    const p = document.createElement("p");
+    const p = document.createElement('p');
     
     // See `shapes` array in shapes.js.
     p.textContent = new shapes[i]().name;
     
     p.id = i;
-    p.addEventListener("click", (event) => {
+    p.addEventListener('click', (event) => {
       Animator.queue(new Morph(currentShape, getShape(event.target.id)));
       closeModal();
     });
@@ -293,9 +293,9 @@ class Distort extends Animation {
     // Used for offsetting mouse coordinates to the same plane
     // as the 3D viewport.
     /** @type {!Element} */
-    this.welcome = document.querySelector(".columns.welcome");
+    this.welcome = document.querySelector('.columns.welcome');
     /** @type {!Element} */
-    this.menu = document.querySelector(".menu");
+    this.menu = document.querySelector('.menu');
   }
 
   /** @override */
@@ -367,11 +367,11 @@ class Distort extends Animation {
  */
 function enterInteractive() {
   interactiveModeEnabled = true;
-  const welcomes = document.querySelector("[welcome]");
-  const interactives = document.querySelector("[interactive]");
+  const welcomes = document.querySelector('[welcome]');
+  const interactives = document.querySelector('[interactive]');
   const hint = (deviceIsPrimaryTouch) ?
-        document.querySelector(".hint-b") :
-        document.querySelector(".hint");
+        document.querySelector('.hint-b') :
+        document.querySelector('.hint');
   
   Animator.queue(new Fade(hint, 0, -0.1));
   Animator.queue(new CrossFade(welcomes, interactives, 1, 0.1));
@@ -382,8 +382,8 @@ function enterInteractive() {
  */
 function exitInteractive() {
   interactiveModeEnabled = false;
-  const welcomes = document.querySelector("[welcome]");
-  const interactives = document.querySelector("[interactive]");
+  const welcomes = document.querySelector('[welcome]');
+  const interactives = document.querySelector('[interactive]');
   
   Animator.queue(new CrossFade(interactives, welcomes, 1, 0.1));
   
@@ -393,7 +393,7 @@ function exitInteractive() {
   }
   
   if (deviceIsPrimaryTouch) {
-    const hintb = document.querySelector(".hint-b");
+    const hintb = document.querySelector('.hint-b');
     Animator.queue(new Fade(hintb, 1, 0.05));
   }
 }
@@ -419,36 +419,36 @@ function toggleAutoRotate() {
  * Selects a specific shape with a modal menu.
  */
 function selectShape() {
-  const shapeSelectModal = document.querySelector(".modal");
-  const dismissScreen = document.querySelector(".screen");
-  shapeSelectModal.style.display = "block";
-  dismissScreen.style.display = "block";
-  Animator.queue(new FadeShift(shapeSelectModal, 1, 0.1, "y", 16, 0, -1.6));
+  const shapeSelectModal = document.querySelector('.modal');
+  const dismissScreen = document.querySelector('.screen');
+  shapeSelectModal.style.display = 'block';
+  dismissScreen.style.display = 'block';
+  Animator.queue(new FadeShift(shapeSelectModal, 1, 0.1, 'y', 16, 0, -1.6));
 }
 
 /**
  * Closes the modal menu if it is open.
  */
 function closeModal() {
-  const shapeSelectModal = document.querySelector(".modal");
-  const dismissScreen = document.querySelector(".screen");
+  const shapeSelectModal = document.querySelector('.modal');
+  const dismissScreen = document.querySelector('.screen');
   Animator.cancel(shapeSelectModal.id, FadeShift);
-  dismissScreen.style.display = "none";
-  shapeSelectModal.style.display = "none";
-  shapeSelectModal.style.opacity = "0";
+  dismissScreen.style.display = 'none';
+  shapeSelectModal.style.display = 'none';
+  shapeSelectModal.style.opacity = '0';
 }
 
 /*
  * Listens to key up events.
  */
-document.addEventListener("keyup", (event) => {
+document.addEventListener('keyup', (event) => {
   switch (event.key) {
-  case "i": 
-  case "I":
+  case 'i': 
+  case 'I':
     enterInteractive();
     break;
-  case "Esc": 
-  case "Escape":
+  case 'Esc': 
+  case 'Escape':
     exitInteractive();
     break;
   default:
@@ -456,91 +456,62 @@ document.addEventListener("keyup", (event) => {
   }
 
   if (interactiveModeEnabled) {
-    let num = 0;
     switch (event.key) {
-    case "m":
-    case "M":
+    case 'm':
+    case 'M':
       randomMorph();
       break;
-    case "p":
-    case "P":
+    case 'p':
+    case 'P':
       toggleAutoRotate();
-      break;      
-    case "0":
-    case "1":
-    case "2":
-    case "3":
-    case "4":
-    case "5":
-    case "6":
-    case "7":
-    case "8":
-    case "9":
-      num = (+event.key - 1 < 0) ? 9 : +event.key - 1;
-      Animator.queue(new Morph(currentShape, getShape(num)));
-      break
-    case ")":
-      num++;
-    case "(":
-      num++;
-    case "*":
-      num++;
-    case "&":
-      num++;
-    case "^":
-      num++;
-    case "%":
-      num++;
-    case "$":
-      num++;
-    case "#":
-      num++;
-    case "@":
-      num++;
-    case "!":
-      num++;
-      Animator.queue(new Morph(currentShape, getShape(num + 9)));
       break;
     default:
       break;
     }
-  }  
+
+    const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
+                  '!', '@', '#', '$', '%', '^', '&', '*', '(', ')'];
+    const shapeIndex = keys.indexOf(event.key);
+    if (shapeIndex >= 0) {
+      Animator.queue(new Morph(currentShape, getShape(shapeIndex)));
+    }
+  }
 });
 
 /*
  * Listens to key hold events.
  */
-document.addEventListener("keydown", (event) => {
+document.addEventListener('keydown', (event) => {
   if (interactiveModeEnabled) {
     const factor = 4;
     switch (event.key) {
-    case "s":
-    case "S":
+    case 's':
+    case 'S':
       pauseRotate = true;
       currentShape.rotateX(rotationStepSize * factor);
       break;
-    case "w": 
-    case "W":
+    case 'w': 
+    case 'W':
       pauseRotate = true;
       currentShape.rotateX(-rotationStepSize * factor);
       break;
-    case "a":
-    case "A":
+    case 'a':
+    case 'A':
       pauseRotate = true;
       currentShape.rotateY(rotationStepSize * factor);
       break;
-    case "d":
-    case "D":
+    case 'd':
+    case 'D':
       pauseRotate = true;
       currentShape.rotateY(-rotationStepSize * factor);
       break;
-    case "z": 
-    case "Z":
+    case 'z': 
+    case 'Z':
       pauseRotate = true;
       currentShape.rotateZ(-rotationStepSize * factor);
       break;
-    case "x": 
-    case "X":
+    case 'x': 
+    case 'X':
       pauseRotate = true;
       currentShape.rotateZ(rotationStepSize * factor);
       break;
