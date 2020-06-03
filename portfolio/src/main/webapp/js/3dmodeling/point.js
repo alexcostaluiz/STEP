@@ -48,7 +48,7 @@ class Point {
   /**
    * Rotates this point around the x-axis.
    * 
-   * @param {!number} rad The radians by which to rotate this point. Should
+   * @param {number} rad The radians by which to rotate this point. Should
    *     be small to avoid jumpy animations (~ Math.PI / 360).
    */
   rotateX(rad) {
@@ -61,7 +61,7 @@ class Point {
   /**
    * Rotates this point around the y-axis.
    * 
-   * @param {!number} rad The radians by which to rotate this point. Should
+   * @param {number} rad The radians by which to rotate this point. Should
    *     be small to avoid jumpy animations (~ Math.PI / 360).
    */
   rotateY(rad) {
@@ -74,7 +74,7 @@ class Point {
   /**
    * Rotates this point around the z-axis.
    * 
-   * @param {!number} rad The radians by which to rotate this point. Should
+   * @param {number} rad The radians by which to rotate this point. Should
    *     be small to avoid jumpy animations (~ Math.PI / 360).
    */
   rotateZ(rad) {
