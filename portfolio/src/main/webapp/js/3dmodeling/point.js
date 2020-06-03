@@ -29,8 +29,8 @@ class Point {
     this.parent = parent;
     
     if (parent !== undefined) {
-      this.node = document.createElement("div");
-      this.node.classList.add("node");
+      this.node = document.createElement('div');
+      this.node.classList.add('node');
       parent.appendChild(this.node);
       this.draw();
     }
@@ -87,19 +87,21 @@ class Point {
   /**
    * Projects the 3D point onto a 2D viewing plane.
    *
-   * @see 3dmodel.js for mOffsetLeft definition.
+   * @see 3dmodel.js for viewport definitions.
    */
   projectX() {
-    return this.x / (this.z + 1.5) * mWidth / 2 + mWidth / 2 - 4.5 + mOffsetLeft;
+    return this.x / (this.z + 1.5) * viewportWidth / 2 +
+      viewportWidth / 2 - 4.5 + viewportOffsetLeft;
   }
 
   /**
    * Projects the 3D point onto a 2D viewing plane.
    *
-   * @see 3dmodel.js for mOffsetTop definition.
+   * @see 3dmodel.js for viewport definitions.
    */
   projectY() {
-    return this.y / (this.z + 1.5) * mHeight / 2 + mHeight / 2 - 4.5 + mOffsetTop;
+    return this.y / (this.z + 1.5) * viewportHeight / 2 +
+      viewportHeight / 2 - 4.5 + viewportOffsetTop;
   }
 
   /**
@@ -109,13 +111,17 @@ class Point {
     if (this.parent === undefined) {
       return;
     }
-    
-    let scale = ((1 - this.z - 0.5) * 0.7 + 0.3) * (0.7 * meshScale + 0.3);
+
+    // Points further in the distance (positive z-coordinate) will have
+    // a smaller scale factor which is clamped to zero, giving a perspective
+    // effect.
+    let scale = ((1 - this.z - 0.5) * 0.7 + 0.3) * (0.7 * viewportScale + 0.3);
     if (scale < 0) {
       scale = 0;
     }
-    this.node.style.transform = "scale(" + scale + ")";
-    this.node.style.left = this.projectX() + this.distortX + "px";
-    this.node.style.top = this.projectY() + this.distortY + "px";
+    
+    this.node.style.transform = 'scale(' + scale + ')';
+    this.node.style.left = this.projectX() + this.distortX + 'px';
+    this.node.style.top = this.projectY() + this.distortY + 'px';
   }
 }
