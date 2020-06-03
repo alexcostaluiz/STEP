@@ -357,8 +357,8 @@ class FadeShift extends Fade {
   
   /** @override */
   anim() {
-    const fadeComplete = true;
-    const shiftComplete = true;
+    let fadeComplete = true;
+    let shiftComplete = true;
     try {
       fadeComplete = this.stepFade(this.node, this.fadeTo, this.step);
       shiftComplete = this.stepShift(this.node, this.shiftAxis,
