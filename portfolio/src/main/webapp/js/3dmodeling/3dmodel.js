@@ -12,28 +12,35 @@
  * 
  * @type {number}
  */
-let mWidth = 0;
+let viewportWidth = 0;
 
 /**
  * Height of the 3D viewport.
  * 
  * @type {number}
  */
-let mHeight = 0;
+let viewportHeight = 0;
 
 /**
  * Top offset of the 3D viewport.
  *
  * @type {number}
  */
-let mOffsetTop = 0;
+let viewportOffsetTop = 0;
 
 /**
  * Left offset of the 3D viewport.
  *
  * @type {number}
  */
-let mOffsetLeft = 0;
+let viewportOffsetLeft = 0;
+
+/**
+ * A scaling factor based on the viewport width.
+ *
+ * @type {number}
+ */
+let viewportScale = 0;
 
 /**
  * Pointer (mouse/trackpad) x-coordinate.
@@ -54,14 +61,14 @@ let mouseY = 0;
  *
  * @type {number}
  */
-const dTheta = Math.PI / 720;
+const rotationStepSize = Math.PI / 720;
 
 /**
  * True if home page is in interactive mode; false otherwise.
  *
  * @type {boolean}
  */
-let interactive = false;
+let interactiveModeEnabled = false;
 
 /**
  * True if the shape rotation animation is paused; false otherwise.
@@ -75,27 +82,27 @@ let pauseRotate = false;
  * 
  * @param {number}
  */
-let morphc = shapes.length - 1;
+let currentShapeIndex = shapes.length - 1;
 
 /**
  * True if the device is a primary touch device (tablet/phone).
  *
  * @type {boolean}
  */
-let touch = false;
+let deviceIsPrimaryTouch = false;
 
 /**
  * The current shape being modeled.
  * 
  * @param {?Shape}
  */
-let shape;
+let currentShape;
 
 /*
  * Initialize the program.
  */
 window.addEventListener("load", () => {
-  touch = getComputedStyle(document.querySelector(".hint-b"))
+  deviceIsPrimaryTouch = getComputedStyle(document.querySelector(".hint-b"))
     .display !== "none";
 
   init3DModel();
@@ -106,62 +113,62 @@ window.addEventListener("load", () => {
  * Initializes the 3D modeling program.
  */
 function init3DModel() {
-  const mesh = document.querySelector(".mesh");
-  set3DViewportAspectRatio(mesh);
+  const viewport = document.querySelector(".mesh");
+  set3DViewportAspectRatio(viewport);
   
   // Initialize listeners.
-  window.addEventListener("mousemove", (e) => {
-    mouseX = e.pageX;
-    mouseY = e.pageY;
+  window.addEventListener("mousemove", (event) => {
+    mouseX = event.pageX;
+    mouseY = event.pageY;
   });
 
   window.addEventListener("resize", () => {
-    set3DViewportAspectRatio(mesh);
+    set3DViewportAspectRatio(viewport);
     const shapeName = document.querySelector(".shape");
     const shapeNameFake = document.querySelector(".shape.fake");
     shapeName.style.left = shapeNameFake.offsetLeft + "px";
   });
 
-  mesh.addEventListener("mouseenter", (e) => {
-    if (!interactive) {
+  viewport.addEventListener("mouseenter", () => {
+    if (!interactiveModeEnabled) {
       const hint = document.querySelector(".hint");
       Animator.queue(new Fade(hint, 0.5, 0.05));
     }
   });
 
-  mesh.addEventListener("mouseleave", (e) => {
-    if (!interactive) {
+  viewport.addEventListener("mouseleave", () => {
+    if (!interactiveModeEnabled) {
       const hint = document.querySelector(".hint");
       Animator.queue(new Fade(hint, 0.0, -0.05));
     }
   });
 
   // Queue animations.
-  shape = getShape(morphc, mesh);
-  Animator.queue(new Draw(shape));
-  if (!touch) Animator.queue(new Distort(shape));
-  Animator.queue(new Morph(shape, getShape(-1)));
+  currentShape = getShape(currentShapeIndex, viewport);
+  Animator.queue(new Draw(currentShape));
+  if (!deviceIsPrimaryTouch) Animator.queue(new Distort(currentShape));
+  Animator.queue(new Morph(currentShape, getShape(-1)));
 }
 
 /**
  * Sets the 3D viewport aspect ratio based on the current dimensions
- * of the mesh element.
+ * of the viewport element.
  * 
- * @param {!Element} mesh The 3D viewport DOM element.
+ * @param {!Element} viewport The 3D viewport DOM element.
  */
-function set3DViewportAspectRatio(mesh) {
-  mWidth = mesh.offsetWidth;
-  mHeight = mesh.offsetHeight;
-  if (mWidth > mHeight) {
-    mWidth = mHeight * 1.1;
-    mOffsetLeft = (mesh.offsetWidth - mWidth) / 2;
-    mOffsetTop = 0;
+function set3DViewportAspectRatio(viewport) {
+  viewportWidth = viewport.offsetWidth;
+  viewportHeight = viewport.offsetHeight;
+  if (viewportWidth > viewportHeight) {
+    viewportWidth = viewportHeight * 1.1;
+    viewportOffsetLeft = (viewport.offsetWidth - viewportWidth) / 2;
+    viewportOffsetTop = 0;
   } else {
-    mHeight = mWidth / 1.1;
-    mOffsetTop = (mesh.offsetHeight - mHeight) / 2;
-    mOffsetLeft = 0;
+    viewportHeight = viewportWidth / 1.1;
+    viewportOffsetTop = (viewport.offsetHeight - viewportHeight) / 2;
+    viewportOffsetLeft = 0;
   }
-  meshScale = mesh.offsetWidth / 950;
+  viewportScale = viewport.offsetWidth / 950;
 }
 
 /**
@@ -169,7 +176,7 @@ function set3DViewportAspectRatio(mesh) {
  * touch (tablets/phones).
  */
 function initTouchAccessibility() {
-  const modal = document.querySelector(".modal");
+  const shapeSelectModal = document.querySelector(".modal");
   
   for (let i = 0; i < shapes.length - 1; i++) {
     const p = document.createElement("p");
@@ -178,11 +185,11 @@ function initTouchAccessibility() {
     p.textContent = new shapes[i]().name;
     
     p.id = i;
-    p.addEventListener("click", (e) => {
-      Animator.queue(new Morph(shape, getShape(e.target.id)));
+    p.addEventListener("click", (event) => {
+      Animator.queue(new Morph(currentShape, getShape(event.target.id)));
       closeModal();
     });
-    modal.appendChild(p);
+    shapeSelectModal.appendChild(p);
   }
 }
 
@@ -225,10 +232,10 @@ class Exhibit extends Animation {
      * 
      * @type {number}
      */
-    this.count = 0;
+    this.frameCount = 0;
 
     /**
-     * The current rotation.
+     * The current rotation direction.
      *   1: left
      *   2: right
      *   3: up
@@ -236,7 +243,7 @@ class Exhibit extends Animation {
      * 
      * @type {number}
      */
-    this.rotation = 0;
+    this.currentRotationDirection = 0;
   }
 
   /** @override */
@@ -246,26 +253,26 @@ class Exhibit extends Animation {
     }
 
     // Switch rotation direction every 800 frames.
-    if (this.count % 800 == 0) {
+    if (this.frameCount % 800 == 0) {
       let newRotation = Math.floor(Math.random() * 2);
-      if (this.rotation < 2) {
+      if (this.currentRotationDirection < 2) {
         newRotation += 2;
       }
-      this.rotation = newRotation;
+      this.currentRotationDirection = newRotation;
     }
 
     // Switch shape form every 2400 frames.
-    if (!interactive && this.count % 2400 == 0 && this.count > 0) {
+    if (!interactiveModeEnabled && this.frameCount % 2400 == 0 && this.frameCount > 0) {
       Animator.queue(new Morph(this.shape, getShape(-1)));
       return true;
     }
     
-    if (this.rotation == 0) this.shape.rotateX(dTheta);
-    else if (this.rotation == 1) this.shape.rotateX(-dTheta);
-    else if (this.rotation == 2) this.shape.rotateY(-dTheta);
-    else if (this.rotation == 3) this.shape.rotateY(dTheta);
+    if (this.currentRotationDirection == 0) this.shape.rotateX(rotationStepSize);
+    else if (this.currentRotationDirection == 1) this.shape.rotateX(-rotationStepSize);
+    else if (this.currentRotationDirection == 2) this.shape.rotateY(-rotationStepSize);
+    else if (this.currentRotationDirection == 3) this.shape.rotateY(rotationStepSize);
     
-    this.count++;
+    this.frameCount++;
   }
 }
 
@@ -324,10 +331,10 @@ class Distort extends Animation {
                                           distanceFromMouseY * distanceFromMouseY);
 
       // Point spread factor when mouse is near.
-      const spread = 800 * meshScale * meshScale;
+      const spread = 800 * viewportScale * viewportScale;
 
       // "Magnetic" pull factor of home coordinates on actual coordinates.
-      let magnet = (distanceFromMouse / 500) / meshScale;
+      let magnet = (distanceFromMouse / 500) / viewportScale;
       if (magnet > 1.7) magnet = 1.7;
       
       const powerX = actualX - (distanceFromMouseX / distanceFromMouse) *
@@ -359,10 +366,10 @@ class Distort extends Animation {
  * Enters interative mode.
  */
 function enterInteractive() {
-  interactive = true;
+  interactiveModeEnabled = true;
   const welcomes = document.querySelector("[welcome]");
   const interactives = document.querySelector("[interactive]");
-  const hint = (touch) ?
+  const hint = (deviceIsPrimaryTouch) ?
         document.querySelector(".hint-b") :
         document.querySelector(".hint");
   
@@ -374,7 +381,7 @@ function enterInteractive() {
  * Exits interactive mode.
  */
 function exitInteractive() {
-  interactive = false;
+  interactiveModeEnabled = false;
   const welcomes = document.querySelector("[welcome]");
   const interactives = document.querySelector("[interactive]");
   
@@ -382,10 +389,10 @@ function exitInteractive() {
   
   if (pauseRotate) {
     pauseRotate = false;
-    Animator.queue(new Exhibit(shape));
+    Animator.queue(new Exhibit(currentShape));
   }
   
-  if (touch) {
+  if (deviceIsPrimaryTouch) {
     const hintb = document.querySelector(".hint-b");
     Animator.queue(new Fade(hintb, 1, 0.05));
   }
@@ -395,7 +402,7 @@ function exitInteractive() {
  * Queues a morph animation to a random shape.
  */
 function randomMorph() {
-  Animator.queue(new Morph(shape, getShape(-1)));
+  Animator.queue(new Morph(currentShape, getShape(-1)));
 }
 
 /**
@@ -404,7 +411,7 @@ function randomMorph() {
 function toggleAutoRotate() {
   pauseRotate = !pauseRotate;
   if (!pauseRotate) {
-    Animator.queue(new Exhibit(shape));
+    Animator.queue(new Exhibit(currentShape));
   }
 }
 
@@ -412,30 +419,30 @@ function toggleAutoRotate() {
  * Selects a specific shape with a modal menu.
  */
 function selectShape() {
-  const modal = document.querySelector(".modal");
-  const screen = document.querySelector(".screen");
-  modal.style.display = "block";
-  screen.style.display = "block";
-  Animator.queue(new FadeShift(modal, 1, 0.1, "y", 16, 0, -1.6));
+  const shapeSelectModal = document.querySelector(".modal");
+  const dismissScreen = document.querySelector(".screen");
+  shapeSelectModal.style.display = "block";
+  dismissScreen.style.display = "block";
+  Animator.queue(new FadeShift(shapeSelectModal, 1, 0.1, "y", 16, 0, -1.6));
 }
 
 /**
  * Closes the modal menu if it is open.
  */
 function closeModal() {
-  const modal = document.querySelector(".modal");
-  const screen = document.querySelector(".screen");
-  Animator.cancel(modal.id, FadeShift);
-  screen.style.display = "none";
-  modal.style.display = "none";
-  modal.style.opacity = "0";
+  const shapeSelectModal = document.querySelector(".modal");
+  const dismissScreen = document.querySelector(".screen");
+  Animator.cancel(shapeSelectModal.id, FadeShift);
+  dismissScreen.style.display = "none";
+  shapeSelectModal.style.display = "none";
+  shapeSelectModal.style.opacity = "0";
 }
 
 /*
  * Listens to key up events.
  */
-document.addEventListener("keyup", (e) => {
-  switch (e.key) {
+document.addEventListener("keyup", (event) => {
+  switch (event.key) {
   case "i": 
   case "I":
     enterInteractive();
@@ -448,9 +455,9 @@ document.addEventListener("keyup", (e) => {
     break;
   }
 
-  if (interactive) {
+  if (interactiveModeEnabled) {
     let num = 0;
-    switch (e.key) {
+    switch (event.key) {
     case "m":
     case "M":
       randomMorph();
@@ -458,7 +465,7 @@ document.addEventListener("keyup", (e) => {
     case "p":
     case "P":
       toggleAutoRotate();
-      break;
+      break;      
     case "0":
     case "1":
     case "2":
@@ -469,8 +476,8 @@ document.addEventListener("keyup", (e) => {
     case "7":
     case "8":
     case "9":
-      num = (+e.key - 1 < 0) ? 9 : +e.key - 1;
-      Animator.queue(new Morph(shape, getShape(num)));
+      num = (+event.key - 1 < 0) ? 9 : +event.key - 1;
+      Animator.queue(new Morph(currentShape, getShape(num)));
       break
     case ")":
       num++;
@@ -492,7 +499,7 @@ document.addEventListener("keyup", (e) => {
       num++;
     case "!":
       num++;
-      Animator.queue(new Morph(shape, getShape(num + 9)));
+      Animator.queue(new Morph(currentShape, getShape(num + 9)));
       break;
     default:
       break;
@@ -503,39 +510,39 @@ document.addEventListener("keyup", (e) => {
 /*
  * Listens to key hold events.
  */
-document.addEventListener("keydown", (e) => {
-  if (interactive) {
+document.addEventListener("keydown", (event) => {
+  if (interactiveModeEnabled) {
     const factor = 4;
-    switch (e.key) {
+    switch (event.key) {
     case "s":
     case "S":
       pauseRotate = true;
-      shape.rotateX(dTheta * factor);
+      currentShape.rotateX(rotationStepSize * factor);
       break;
     case "w": 
     case "W":
       pauseRotate = true;
-      shape.rotateX(-dTheta * factor);
+      currentShape.rotateX(-rotationStepSize * factor);
       break;
     case "a":
     case "A":
       pauseRotate = true;
-      shape.rotateY(dTheta * factor);
+      currentShape.rotateY(rotationStepSize * factor);
       break;
     case "d":
     case "D":
       pauseRotate = true;
-      shape.rotateY(-dTheta * factor);
+      currentShape.rotateY(-rotationStepSize * factor);
       break;
     case "z": 
     case "Z":
       pauseRotate = true;
-      shape.rotateZ(-dTheta * factor);
+      currentShape.rotateZ(-rotationStepSize * factor);
       break;
     case "x": 
     case "X":
       pauseRotate = true;
-      shape.rotateZ(dTheta * factor);
+      currentShape.rotateZ(rotationStepSize * factor);
       break;
     default:
       break;
