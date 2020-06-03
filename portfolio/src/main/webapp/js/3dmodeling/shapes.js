@@ -743,7 +743,7 @@ const shapes = [
 function getShape(i, parent) {
   if (i < 0) {
     let newMorph = Math.floor(Math.random() * (shapes.length - 1));
-    while (newMorph == morphc) {
+    while (newMorph === morphc) {
       newMorph = Math.floor(Math.random() * (shapes.length - 1));
     }
     morphc = newMorph;
