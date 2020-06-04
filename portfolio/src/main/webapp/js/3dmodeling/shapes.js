@@ -239,7 +239,7 @@ class Morph extends Animation {
     this.distances = shape.computeDistance(form);
 
     // Start a reveal animation for the new name of this shape.
-    const shapeLabel = document.querySelector(".shape");
+    const shapeLabel = document.querySelector('.shape');
     Animator.queue(new Reveal(shapeLabel, this.shape.name));
 
     // Cancel the current Exhibit animation on this shape while
@@ -303,7 +303,7 @@ class Reveal extends Animation {
      * 
      * @type {!Element}
      */
-    this.fname = document.querySelector(".shape.fake");
+    this.fname = document.querySelector('.shape.fake');
     this.fname.textContent = this.text;
   }
 
@@ -331,12 +331,12 @@ class Reveal extends Animation {
       
     case (this.frameCount == 5): // 3
       this.node.style.opacity = 1;
-      this.node.style.left = this.fname.offsetLeft + "px";
+      this.node.style.left = this.fname.offsetLeft + 'px';
       // Fall through.
       
     default: // 4
       if (this.frameCount - 5 < this.text.length) {
-        const letter = document.createElement("span");
+        const letter = document.createElement('span');
         letter.style.opacity = 0;
         letter.textContent = this.text[this.frameCount - 5];
         this.node.appendChild(letter);
@@ -357,7 +357,7 @@ class Reveal extends Animation {
 class Cube extends Shape {
   constructor(parent) {
     super(parent);
-    this.name = "cube";
+    this.name = 'cube';
     const step = 0.122222;
     for (let x = -0.55; x <= 0.55; x += step) {
       for (let y = -0.55; y <= 0.55; y += step) {
@@ -375,7 +375,7 @@ class Cube extends Shape {
 class Sphere extends Shape {
   constructor(parent) {
     super(parent);
-    this.name = "fibonacci lattice";
+    this.name = 'fibonacci lattice';
     const numPoints = 1000;
     for (let i = 0; i < numPoints; i++) {
       const phi = Math.acos(1 - 2 * (i + 0.5) / numPoints);
@@ -395,7 +395,7 @@ class Sphere extends Shape {
 class FullSphere extends Shape {
   constructor(parent) {
     super(parent);
-    this.name = "nested fibonacci lattice";
+    this.name = 'nested fibonacci lattice';
     const numPoints = 250;
     for (let j = 0.225; j <= 0.9; j += 0.225) {
       for (let i = 0; i < numPoints; i++) {
@@ -417,7 +417,7 @@ class FullSphere extends Shape {
 class SpiralSphere extends Shape {
   constructor(parent) {
     super(parent);
-    this.name = "adjusted fibonacci lattice";
+    this.name = 'adjusted fibonacci lattice';
     const numPoints = 1000;
     for (let i = 0; i < numPoints; i++) {
       const phi = Math.acos(1 - 2 * (i + 0.5) / numPoints);
@@ -437,7 +437,7 @@ class SpiralSphere extends Shape {
 class NoisySphere extends Shape {
   constructor(parent) {
     super(parent);
-    this.name = "noisy sphere";
+    this.name = 'noisy sphere';
     for (let i = -1; i < 1; i += 0.2) {
       for (let j = -1; j < 1; j += 0.2) {
         for (let k = -1; k < 1; k += 0.2) {
@@ -462,7 +462,7 @@ class NoisySphere extends Shape {
 class Disk extends Shape {
   constructor(parent) {
     super(parent);
-    this.name = "intersecting disks";
+    this.name = 'intersecting disks';
     for (let i = 0; i <= 1; i += 0.0625) {
       for (let j = 0; j <= 1; j += 0.125) {
         for (let k = 0; k < 1; k += 0.125) {
@@ -490,7 +490,7 @@ class Disk extends Shape {
 class Ray extends Shape {
   constructor(parent) {
     super(parent);
-    this.name = "beaming rays; like a sun";
+    this.name = 'beaming rays; like a sun';
 
     // Interior sphere.
     const numPoints = 200;
@@ -530,7 +530,7 @@ class Ray extends Shape {
 class Crescents extends Shape {
   constructor(parent) {
     super(parent);
-    this.name = "kissing crescents";
+    this.name = 'kissing crescents';
     const step = 0.001;
     for (let i = 0; i < 1; i += step) {
       const v = i;
@@ -549,7 +549,7 @@ class Crescents extends Shape {
 class Torus extends Shape {
   constructor(parent) {
     super(parent);
-    this.name = "torus; like a doughnut";
+    this.name = 'torus; like a doughnut';
     const R = 0.65;
     const r = 0.3;
     const step = 0.001;
@@ -570,7 +570,7 @@ class Torus extends Shape {
 class TwistedTorus extends Shape {
   constructor(parent) {
     super(parent);
-    this.name = "contorted torus";
+    this.name = 'contorted torus';
     const N = 4;
     const R3 = 3;
     const R = 15;
@@ -600,7 +600,7 @@ class TwistedTorus extends Shape {
 class HornTorus extends Shape {
   constructor(parent) {
     super(parent);
-    this.name = "horn torus";
+    this.name = 'horn torus';
     const R = 0.47;
     const r = 0.47;
     const step = 0.001;
@@ -621,7 +621,7 @@ class HornTorus extends Shape {
 class Tori extends Shape {
   constructor(parent) {
     super(parent);
-    this.name = "interlocking tori";
+    this.name = 'interlocking tori';
     const R = 0.45;
     const r = 0.225; 
     const step = 0.002;
@@ -650,7 +650,7 @@ class Tori extends Shape {
 class Cylinder extends Shape {
   constructor(parent) {
     super(parent);
-    this.name = "adjusted horn torus";
+    this.name = 'adjusted horn torus';
     const R = 0.55;
     const r = 0.55;
     const step = 0.001;
@@ -672,7 +672,7 @@ class Cylinder extends Shape {
 class Shell extends Shape {
   constructor(parent) {
     super(parent);
-    this.name = "nautilus shell";
+    this.name = 'nautilus shell';
     for (let i = 0; i < 1; i += 0.03125) {
       for (let j = 0; j < 1; j += 0.03125) {
         const theta = i * Math.PI;
@@ -709,7 +709,7 @@ const functions = [meshFunc1, meshFunc2];
 class Mesh extends Shape {
   constructor(parent, func) {
     super(parent);
-    this.name = "mesh";
+    this.name = 'mesh';
 
     if (func === undefined) {
       func = Math.floor(Math.random() * functions.length);
@@ -733,7 +733,7 @@ class Mesh extends Shape {
 class Singularity extends Shape {
   constructor(parent) {
     super(parent);
-    this.name = "singularity";
+    this.name = 'singularity';
     for (let i = 0; i < 1000; i++) {
       super.add(new Point(
         Math.random() * 2.5 - 1.25, 
