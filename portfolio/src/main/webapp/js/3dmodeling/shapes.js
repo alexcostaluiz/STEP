@@ -100,8 +100,8 @@ class Shape {
    *     small to avoid jumpy animations (~ Math.PI / 360).
    */
   rotateX(rad) {
-    for (let i = 0; i < this.points.length; i++) {
-      this.points[i].rotateX(rad);
+    for (const point of this.points) {
+      point.rotateX(rad);
     }
   }
   
@@ -112,8 +112,8 @@ class Shape {
    *     small to avoid jumpy animations (~ Math.PI / 360).
    */
   rotateY(rad) {
-    for (let i = 0; i < this.points.length; i++) {
-      this.points[i].rotateY(rad);
+    for (const point of this.points) {
+      point.rotateY(rad);
     }
   }
   
@@ -124,8 +124,8 @@ class Shape {
    *     small to avoid jumpy animations (~ Math.PI / 360).
    */
   rotateZ(rad) {
-    for (let i = 0; i < this.points.length; i++) {
-      this.points[i].rotateZ(rad);
+    for (const point of this.points) {
+      point.rotateZ(rad);
     }
   }
   
@@ -133,8 +133,8 @@ class Shape {
    * Draws all points of this shape.
    */
   draw() {
-    for (let i = 0; i < this.points.length; i++) {
-      this.points[i].draw();
+    for (const point of this.points) {
+      point.draw();
     }
   }
 
