@@ -35,17 +35,16 @@ class Animator {
         this.queue(anim);
       }, delay);
       return anim;
-    } else {
-      if (anim instanceof Animation) {
-        this.cancel(anim.ids, anim.constructor);
-        const i = window.requestAnimationFrame(anim.run);
-        animations[[anim.node.id, anim.constructor.name]] = i;
-        return anim;
-      }
-      else {
-        throw new Error('Error: specified animation must inherit from Animation class');
-      }
     }
+    
+    if (anim instanceof Animation) {
+      this.cancel(anim.ids, anim.constructor);
+      const i = window.requestAnimationFrame(anim.run);
+      animations[[anim.node.id, anim.constructor.name]] = i;
+      return anim;
+    }
+    
+    throw new Error('Error: specified animation must inherit from Animation class');
   }
 
   /**
@@ -65,8 +64,7 @@ class Animator {
       window.cancelAnimationFrame(animations[[ids, anim.name]]);
       delete animations[[ids, anim.name]];
     } else {
-      for (let i = 0; i < ids.length; i++) {
-        const id = ids[i];
+      for (const id of ids) {
         window.cancelAnimationFrame(animations[[id, anim.name]]);
         delete animations[[id, anim.name]];
       }
@@ -80,7 +78,7 @@ class Animator {
    *     canceled.
    */
   static cancelAll(id) {
-    for (let key in animations) {
+    for (const key in animations) {
       if (key.includes(id)) {
         window.cancelAnimationFrame(animations[key]);
         delete animations[key];
@@ -97,7 +95,7 @@ class Animator {
    *     otherwise.
    */
   static check(id) {
-    for (let key in animations) {
+    for (const key in animations) {
       if (key.includes(id)) {
         return true;
       }
