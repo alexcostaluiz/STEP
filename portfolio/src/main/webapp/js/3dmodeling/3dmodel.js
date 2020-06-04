@@ -316,7 +316,7 @@ class Distort extends Animation {
       yOffset = welcomeHeight + welcomeMarginTop + welcomeMarginBottom;
     }
     
-    for (const point of this.shapes.points) {
+    for (const point of this.shape.points) {
       const homeX = point.projectX();
       const homeY = point.projectY();
 
