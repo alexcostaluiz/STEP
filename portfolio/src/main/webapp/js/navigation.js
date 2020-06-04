@@ -100,6 +100,11 @@ class ToggleDropdown extends Animation {
     super(dropdown);
     this.height = height;
     this.open = open;
+
+    if (step < 0) {
+      throw new Error('ToggleDropdown animation cannot have a negative step');
+    }
+    
     this.step = (open) ? -step : step;
   }
 
@@ -122,6 +127,6 @@ class ToggleDropdown extends Animation {
       newHeight = dest;
     }
     
-    this.node.style.height = newHeight + "px";
+    this.node.style.height = newHeight + 'px';
   }
 }
