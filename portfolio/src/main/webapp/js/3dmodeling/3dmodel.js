@@ -348,10 +348,10 @@ class Distort extends Animation {
 
       // Prevent jumpy points by enforcing a max distortion.
       if (Math.abs(distortX) > maxDistortion) {
-        distortX = (distortX > 0) maxDistortion : -maxDistortion;
+        distortX = (distortX > 0) ? maxDistortion : -maxDistortion;
       }
       if (Math.abs(distortY) > maxDistortion) {
-        distortY = (distortY > 0) maxDistortion : -maxDistortion;
+        distortY = (distortY > 0) ? maxDistortion : -maxDistortion;
       }
       
       point.distortX = distortX;
