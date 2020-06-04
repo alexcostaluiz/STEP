@@ -149,6 +149,8 @@ class Shape {
     
     // Add extra points deep in z-axis if necessary.
     for (let i = 0; i < diff; i++) {
+      // New points will come from random position near the
+      // center of the viewport.
       const x = Math.random() * 1.25 - 0.75;
       const y = Math.random() * 1.25 - 0.75;
       const z = 1;
@@ -182,12 +184,12 @@ class Shape {
     let j = 0;
     for (let i = 0; i < this.points.length; i++) {
       if (distances[i] === undefined) {
-        const tp = this.points[i];
-        const op = form.points[j++];
+        const thisShapePoint = this.points[i];
+        const otherShapePoint = form.points[j++];
         
-        const dx = op.x - tp.x;
-        const dy = op.y - tp.y;
-        const dz = op.z - tp.z;
+        const dx = otherShapePoint.x - thisShapePoint.x;
+        const dy = otherShapePoint.y - thisShapePoint.y;
+        const dz = otherShapePoint.z - thisShapePoint.z;
         
         distances[i] = [dx, dy, dz];
       }
@@ -215,11 +217,18 @@ class Morph extends Animation {
     this.shape.name = form.name;
     
     /**
-     * The animation frame.
+     * The current animation frame.
      * 
      * @type {number}
      */
-    this.count = 0;
+    this.frameCount = 0;
+
+    /**
+     * The total number of frames for this animation.
+     * 
+     * @type {number}
+     */
+    this.totalFrames = 30;
 
     /**
      * An array of three-dimensional distances from each point in
@@ -227,7 +236,7 @@ class Morph extends Animation {
      * 
      * @type {!Array<Array<number, number, number, ?boolean>>}
      */
-    this.distance = shape.computeDistance(form);
+    this.distances = shape.computeDistance(form);
 
     // Start a reveal animation for the new name of this shape.
     const shapeLabel = document.querySelector(".shape");
@@ -240,7 +249,7 @@ class Morph extends Animation {
 
   /** @override */
   anim() {
-    if (this.count === 30) {
+    if (this.frameCount === this.totalFrames) {
       // Resume the Exhibit animation.
       Animator.queue(new Exhibit(this.shape));
       return true;
@@ -251,16 +260,19 @@ class Morph extends Animation {
     for (let i = this.shape.points.length - 1; i >= 0; i--) {
       const p = this.shape.points[i];
 
-      p.x += this.distance[i][0] / 30;
-      p.y += this.distance[i][1] / 30;
-      p.z += this.distance[i][2] / 30;
-      
-      if (this.count === 29 && this.distance[i][3]) {
+      p.x += this.distances[i][0] / this.totalFrames;
+      p.y += this.distances[i][1] / this.totalFrames;
+      p.z += this.distances[i][2] / this.totalFrames;
+
+      // On the last processed frame, remove all points that are not
+      // necessary for the new form.
+      if (this.frameCount === (this.totalFrames - 1) &&
+          this.distances[i][3]) {
         shape.remove(p);
       }
     }
 
-    this.count++;
+    this.frameCount++;
   }
 }
 
@@ -283,8 +295,7 @@ class Reveal extends Animation {
      * 
      * @type {number}
      */
-    this.count = 0;
-    
+    this.frameCount = 0;
 
     /**
      * An invisible element which gives the correct left padding
@@ -298,7 +309,7 @@ class Reveal extends Animation {
 
   /** @override */
   anim() {
-    if (this.count - 14 === this.text.length) {
+    if (this.frameCount - 14 === this.text.length) {
       return true;
     }
     
@@ -309,35 +320,34 @@ class Reveal extends Animation {
     // 3. Reveal the empty string and set left padding.
     // 4. Add and fade in each letter of the new string.
     switch (true) {
-    case (this.count < 5): // 1
+    case (this.frameCount < 5): // 1
       this.node.style.opacity = +this.node.style.opacity - 0.2;
-      if (this.count == 4) { // 2
+      if (this.frameCount == 4) { // 2
         while (this.node.firstChild) {
           this.node.removeChild(this.node.firstChild);
         }
       }
       break;
       
-    case (this.count == 5): // 3
+    case (this.frameCount == 5): // 3
       this.node.style.opacity = 1;
       this.node.style.left = this.fname.offsetLeft + "px";
       // Fall through.
       
     default: // 4
-      if (this.count - 5 < this.text.length) {
+      if (this.frameCount - 5 < this.text.length) {
         const letter = document.createElement("span");
         letter.style.opacity = 0;
-        letter.textContent = this.text[this.count - 5];
+        letter.textContent = this.text[this.frameCount - 5];
         this.node.appendChild(letter);
       }
-      for (let i = 0; i < this.node.childNodes.length; i++) {
-        const l = this.node.childNodes[i];
-        l.style.opacity = +l.style.opacity + 0.1;
+      for (const letter of this.node.childNodes) {
+        letter.style.opacity = +letter.style.opacity + 0.1;
       }
       break;
     }
     
-    this.count++;
+    this.frameCount++;
   }
 }
 
@@ -676,6 +686,23 @@ class Shell extends Shape {
   }
 }
 
+/*
+ * Mesh functions.
+ */
+const meshFunc1 = function (x, z) {
+  return Math.sin(-Math.pow(x * 2.2, 2) + Math.pow(z * 3, 2)) * (x / 1.5);
+}
+const meshFunc2 = function (x, z) {
+  return (17.5 * x * z) / Math.exp((Math.pow(x * 2.5, 2)) + (Math.pow(z * 2.5, 2)));
+}
+
+/**
+ * All the mesh functions.
+ * 
+ * @type {!Array<function(number, number): number>}
+ */
+const functions = [meshFunc1, meshFunc2];
+
 /** 
  * A mesh-like shape (a 3D graph of a 3D function).
  */
@@ -743,30 +770,13 @@ const shapes = [
 function getShape(i, parent) {
   if (i < 0) {
     let newMorph = Math.floor(Math.random() * (shapes.length - 1));
-    while (newMorph === morphc) {
+    while (newMorph === currentShapeIndex) {
       newMorph = Math.floor(Math.random() * (shapes.length - 1));
     }
-    morphc = newMorph;
+    currentShapeIndex = newMorph;
   } else {
-    morphc = i;
+    currentShapeIndex = i;
   }
 
-  return new shapes[morphc](parent);
+  return new shapes[currentShapeIndex](parent);
 }
-
-/*
- * Mesh functions.
- */
-const meshFunc1 = function (x, z) {
-  return Math.sin(-Math.pow(x * 2.2, 2) + Math.pow(z * 3, 2)) * (x / 1.5);
-}
-const meshFunc2 = function (x, z) {
-  return (17.5 * x * z) / Math.exp((Math.pow(x * 2.5, 2)) + (Math.pow(z * 2.5, 2)));
-}
-
-/**
- * All the mesh functions.
- * 
- * @type {!Array<function(number, number): number>}
- */
-const functions = [meshFunc1, meshFunc2];
