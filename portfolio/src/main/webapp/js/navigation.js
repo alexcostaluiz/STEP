@@ -12,14 +12,14 @@
  *
  * @type {boolean}
  */
-let open = false;
+let navigationDrawerIsOpen = false;
 
 /**
  * The expanded height of the dropdown menu for mobile devices.
  *
  * @type {number}
  */
-let dropdownHeight = 0;
+let dropdownExpandedHeight = 0;
 
 /**
  * The expandable part of the navigation drawer.
@@ -42,7 +42,8 @@ window.addEventListener("load", () => {
   drawer = document.querySelector(".drawer");
   dropdown = document.querySelector(".dropdown");
   
-  if (dropdownHeight === 0 && getComputedStyle(drawer).display !== "none") {
+  if (dropdownExpandedHeight === 0 &&
+      getComputedStyle(drawer).display !== "none") {
     initDropdown();
   }
 });
@@ -52,8 +53,11 @@ window.addEventListener("load", () => {
  * is first sized for desktop viewing and is later shrunk to mobile sizing.
  */
 window.addEventListener("resize", () => {
-  if (dropdownHeight === 0 && getComputedStyle(drawer).display !== "none") {
-    initDropdown();
+  if (drawer !== undefined && dropdown !== undefined) {
+    if (dropdownExpandedHeight === 0 &&
+        getComputedStyle(drawer).display !== "none") {
+      initDropdown();
+    }
   }
 });
 
@@ -64,7 +68,7 @@ window.addEventListener("resize", () => {
  * reset the style of the dropdown.
  */
 function initDropdown() {
-  dropdownHeight = dropdown.offsetHeight;
+  dropdownExpandedHeight = dropdown.offsetHeight;
   
   // Remove opacity and position styling.
   dropdown.style = undefined;
@@ -75,8 +79,9 @@ function initDropdown() {
  * Toggles the opening/closing of the navigation drawer.
  */
 function toggleDropdown() {
-  Animator.queue(new ToggleDropdown(dropdown, dropdownHeight, open, 25));
-  open = !open;
+  Animator.queue(new ToggleDropdown(dropdown, dropdownExpandedHeight,
+                                    navigationDrawerIsOpen, 25));
+  navigationDrawerIsOpen = !navigationDrawerIsOpen;
 }
 
 /**
@@ -87,8 +92,8 @@ class ToggleDropdown extends Animation {
    * Constructs a new `ToggleDropdown` animation.
    *
    * @param {!Element} dropdown The element to animate, must have an ID.
-   * @param {number} height The expanded height of the dropdown element.
-   * @param {boolean} open The current state of the dropdown. Should be
+   * @param {number} expandedHeight The expanded height of the dropdown element.
+   * @param {boolean} dropdownIsOpen The current state of the dropdown. Should be
    *     true if the dropdown is open or opening before this animation
    *     and false if the dropdown is closed or closing before this
    *     animation.
@@ -96,35 +101,35 @@ class ToggleDropdown extends Animation {
    *     the drdopdown element each animation frame. Controls the speed
    *     of this animation. Must be positive.
    */
-  constructor(dropdown, height, open, step) {
+  constructor(dropdown, expandedHeight, dropdownIsOpen, step) {
     super(dropdown);
-    this.height = height;
-    this.open = open;
+    this.expandedHeight = expandedHeight;
+    this.dropdownIsOpen = dropdownIsOpen;
 
     if (step < 0) {
       throw new Error('ToggleDropdown animation cannot have a negative step');
     }
     
-    this.step = (open) ? -step : step;
+    this.step = (dropdownIsOpen) ? -step : step;
   }
 
   /** @override */
   anim() {
-    const curr = +this.node.style.height
+    const currentHeight = +this.node.style.height
           .substr(0, this.node.style.height.length-2);
-    const dest = (this.open) ? 0 : this.height;
-    const start = (this.open) ? this.height : 0;
+    const destinationHeight = (this.dropdownIsOpen) ? 0 : this.expandedHeight;
+    const initialHeight = (this.dropdownIsOpen) ? this.expandedHeight : 0;
 
-    if (curr === dest) {
+    if (currentHeight === destinationHeight) {
       return true;
     }
 
-    const progress = Math.abs((dest - (curr - this.step / 100)) / (dest - start));
-    let newHeight = curr + (this.step * progress);
+    const progress = Math.abs((destinationHeight - (currentHeight - this.step / 100)) / (destinationHeight - initialHeight));
+    let newHeight = currentHeight + (this.step * progress);
 
-    if (!this.open && newHeight > this.height ||
-        this.open && newHeight < 0) {
-      newHeight = dest;
+    if (!this.dropdownIsOpen && newHeight > this.expandedHeight ||
+        this.dropdownIsOpen && newHeight < 0) {
+      newHeight = destinationHeight;
     }
     
     this.node.style.height = newHeight + 'px';
