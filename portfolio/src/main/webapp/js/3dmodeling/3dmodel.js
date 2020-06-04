@@ -316,14 +316,12 @@ class Distort extends Animation {
       yOffset = welcomeHeight + welcomeMarginTop + welcomeMarginBottom;
     }
     
-    for (let i = 0; i < this.shape.points.length; i++) {
-      const p = this.shape.points[i];
-      
-      const homeX = p.projectX();
-      const homeY = p.projectY();
+    for (const point of this.shapes.points) {
+      const homeX = point.projectX();
+      const homeY = point.projectY();
 
-      const actualX = p.node.offsetLeft;
-      const actualY = p.node.offsetTop;
+      const actualX = point.node.offsetLeft;
+      const actualY = point.node.offsetTop;
             
       const distanceFromMouseX = (mouseX - xOffset) - actualX;
       const distanceFromMouseY = (mouseY - yOffset) - actualY;
@@ -356,8 +354,8 @@ class Distort extends Animation {
         distortY = (distortY > 0) maxDistortion : -maxDistortion;
       }
       
-      p.distortX = distortX;
-      p.distortY = distortY;
+      point.distortX = distortX;
+      point.distortY = distortY;
     }
   }
 }
