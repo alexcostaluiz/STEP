@@ -268,7 +268,7 @@ class Morph extends Animation {
       // necessary for the new form.
       if (this.frameCount === (this.totalFrames - 1) &&
           this.distances[i][3]) {
-        shape.remove(p);
+        this.shape.remove(p);
       }
     }
 
