@@ -27,6 +27,17 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet("/like-comment")
 public class LikeCommentServlet extends HttpServlet {
+  /** 
+   * A Datastore service to interface with the underlying
+   * Datastore database. 
+   */
+  private final DatastoreService datastore;
+
+  @Override
+  public void init(ServletConfig config) throws ServletException {
+    datastore = DatastoreServiceFactory.getDatastoreService();
+  }
+  
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
     throws IOException {
@@ -34,7 +45,6 @@ public class LikeCommentServlet extends HttpServlet {
     long likes = Long.parseLong(request.getParameter("likes"));
     long dislikes = Long.parseLong(request.getParameter("dislikes"));
     
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     Key commentKey = KeyFactory.createKey("Comment", commentId);
     try {
       Entity comment = datastore.get(commentKey);
