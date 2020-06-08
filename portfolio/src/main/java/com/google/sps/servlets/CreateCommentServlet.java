@@ -16,8 +16,6 @@ import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -39,12 +37,8 @@ public class CreateCommentServlet extends HttpServlet {
    * A Datastore service to interface with the underlying
    * Datastore database. 
    */
-  private final DatastoreService datastore;
-
-  @Override
-  public void init(ServletConfig config) throws ServletException {
-    datastore = DatastoreServiceFactory.getDatastoreService();
-  }  
+  private final DatastoreService datastore =
+    DatastoreServiceFactory.getDatastoreService();
   
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
