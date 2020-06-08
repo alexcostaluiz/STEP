@@ -1,3 +1,12 @@
+/**
+ * LikeCommentServlet.java
+ * 06/05/2020
+ *
+ * An endpoint at which comment like and dislike counts may be
+ * persistently updated in Datastore.
+ *
+ * @author Alexander Luiz Costa
+ */
 package com.google.sps.servlets;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -13,7 +22,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /** 
- * Servlet responsible for creating new tasks.
+ * Servlet responsible for updating the like and dislike counts of
+ * project comments.
  */
 @WebServlet("/like-comment")
 public class LikeCommentServlet extends HttpServlet {
