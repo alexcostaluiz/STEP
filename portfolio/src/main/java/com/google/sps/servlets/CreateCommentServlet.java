@@ -36,7 +36,7 @@ public class CreateCommentServlet extends HttpServlet {
 
   /** 
    * A Datastore service to interface with the underlying
-   * datastore database. 
+   * Datastore database. 
    */
   private final DatastoreService datastore;
 
