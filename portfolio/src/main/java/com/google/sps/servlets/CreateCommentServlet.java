@@ -12,6 +12,7 @@ package com.google.sps.servlets;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +26,20 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet("/create-comment")
 public class CreateCommentServlet extends HttpServlet {
+  /** 
+   * The valid project path names for the referring url
+   * to this endpoint.
+   */
+  private static final ImmutableList<String> VALID_PROJECTS =
+    ImmutableList.of("ugadining", "portflagship", "3dmodeling", "visualizations");
+
+  /** 
+   * A Datastore service to interface with the underlying
+   * Datastore database. 
+   */
+  private final DatastoreService datastore =
+    DatastoreServiceFactory.getDatastoreService();
+  
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
     throws IOException {
@@ -42,12 +57,10 @@ public class CreateCommentServlet extends HttpServlet {
     if (project.equals("projects")) {
       project = "ugadining";
     }
-    List<String> projects = Arrays.asList("ugadining", "portflagship",
-                                          "3dmodeling", "visualizations");
     
     // Block comments from being constructed from referring urls that do
     // not match the expected format.
-    if (!projects.contains(project)) {
+    if (!VALID_PROJECTS.contains(project)) {
       response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       return;
     }
@@ -60,8 +73,6 @@ public class CreateCommentServlet extends HttpServlet {
     comment.setProperty("timestamp", timestamp);
     comment.setProperty("parentId", parentId);
     comment.setProperty("project", project);
-
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     datastore.put(comment);
 
     // Send the user back to the page from which they came so they may view
