@@ -1,20 +1,27 @@
+/**
+ * CreateCommentServlet.java
+ * 06/05/2020
+ *
+ * An endpoint at which comments may be created and persistently stored
+ * in Datastore.
+ *
+ * @author Alexander Luiz Costa
+ */
 package com.google.sps.servlets;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /** 
- * Servlet responsible for creating new tasks.
+ * Creates and persistently stores new comments.
  */
 @WebServlet("/create-comment")
 public class CreateCommentServlet extends HttpServlet {
@@ -27,7 +34,9 @@ public class CreateCommentServlet extends HttpServlet {
     long dislikes = 0;
     long timestamp = System.currentTimeMillis();
     long parentId = Long.parseLong(request.getParameter("parentId"));
-    
+
+    // Parse the referring url to determine to which project page this
+    // comment belongs.
     String referer = request.getHeader("referer");
     String project = referer.substring(referer.lastIndexOf('/') + 1);
     if (project.equals("projects")) {
@@ -35,6 +44,9 @@ public class CreateCommentServlet extends HttpServlet {
     }
     List<String> projects = Arrays.asList("ugadining", "portflagship",
                                           "3dmodeling", "visualizations");
+    
+    // Block comments from being constructed from referring urls that do
+    // not match the expected format.
     if (!projects.contains(project)) {
       response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       return;
@@ -52,6 +64,8 @@ public class CreateCommentServlet extends HttpServlet {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     datastore.put(comment);
 
+    // Send the user back to the page from which they came so they may view
+    // their newly constructed comment or reply.
     response.sendRedirect(referer);
   }
 }
