@@ -43,8 +43,7 @@ public class CreateCommentServlet extends HttpServlet {
   @Override
   public void init(ServletConfig config) throws ServletException {
     datastore = DatastoreServiceFactory.getDatastoreService();
-  }
-  
+  }  
   
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
