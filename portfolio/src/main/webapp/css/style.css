@@ -366,11 +366,11 @@ table.socials a {
     white-space: nowrap;
     clear: both;
   }
-  
+
   .drawer {
     display: none;
   }
-  
+
   .container.welcome {
     float: right;
   }
@@ -398,7 +398,7 @@ table.socials a {
   .content {
     margin-top: 20vh;
   }
-  
+
   .content-sidebar {
     margin-top: 20vh;
   }
@@ -411,6 +411,7 @@ table.socials a {
 #interact-h {
   display: none;
 }
+
 .modal {
   display: none;
 }
