@@ -1,3 +1,18 @@
+/**
+ * comments.js
+ * 06/05/2020
+ *
+ * Fetches, creates, and populates comments for project pages with comment
+ * sections.
+ *
+ * @author Alexander Luiz Costa
+ */
+
+/**
+ * Types of comment votes (like and dislike).
+ * 
+ * @enum {string}
+ */
 const Vote = {
   UP: 'up',
   DOWN: 'down',
@@ -8,7 +23,30 @@ window.addEventListener('load', () => {
   fetchComments();
 });
 
+/**
+ * Initialize the "more comments" pagination button and comment
+ * submission form.
+ */
+function initPostCommentForm() {
+  const moreComments = document.getElementById('more-comments');
+  moreComments.onclick = () => void fetchComments(moreComments.cursor);
+  
+  const postCommentForm = document.getElementById('post-comment');
+  postCommentForm.onsubmit = (event) => validateComment(event, undefined);
+  postCommentForm['name'].onfocus = (event) =>
+    void event.target.classList.remove('comment-form-invalid');
+  postCommentForm['content'].onfocus = (event) =>
+    void event.target.classList.remove('comment-form-invalid');
+}
+
+/**
+ * Fetch a batch of parent comments and their associated replies.
+ *
+ * @param {string} cursor The web-safe cursor string describing the position
+ *     at which the server is during comment retrieval.
+ */
 async function fetchComments(cursor) {
+  // Display an animated loading icon to the user.
   const moreComments = document.getElementById('more-comments');
   const loadingComments = document.getElementById('loading-comments');
   moreComments.style.display = 'none';
@@ -23,11 +61,15 @@ async function fetchComments(cursor) {
   const commentSection = document.querySelector('.comment-section');
   const nothingToShow = document.getElementById('nothing-to-show');
 
+  // Remove the loading icon and display the "more comments" button
+  // if more comments yet to be shown exist in the database.
   loadingComments.style.display = 'none';
   if (moreComments.cursor !== json.cursor) {
     moreComments.cursor = json.cursor;
 
     if (json.comments.length === 0) {
+      // If no comments at all were retrieved display a message relaying
+      // to the user that no comments yet exist.
       nothingToShow.style.display = 'block';
     } else if (json.comments.length === 5) {
       moreComments.style.display = 'block';
@@ -51,10 +93,18 @@ async function fetchComments(cursor) {
   }
 }
 
+/**
+ * Creates a comment or reply from the respective templates defined in projects.html.
+ *
+ * @param {!Object<string, *>} comment The comment whose data shall populate a cloned
+ *     template.
+ * @return {!Element} A comment template clone containing the data from the specified
+ *     comment.
+ */
 function createComment(comment) {
-  const isNotReply = comment.parentId === -1;
+  const isParentComment = comment.parentId === -1;
   
-  const container = (isNotReply) ?
+  const container = (isParentComment) ?
         document.getElementById('comment-container-template').cloneNode(true) :
         document.getElementById('comment-reply-container-template').cloneNode(true);
   container.style = undefined;
@@ -74,7 +124,8 @@ function createComment(comment) {
   thumbUpCount.textContent = comment.likes;
   thumbDownCount.textContent = comment.dislikes;
 
-  if (isNotReply) {
+  // Initialize a reply form if this comment can be replied to.
+  if (isParentComment) {
     replies.onclick = (event) => void showReplies(comment);
     replyCount.textContent = '0';
 
@@ -93,6 +144,13 @@ function createComment(comment) {
   return container;
 }
 
+/**
+ * Converts a timestamp (milliseconds since Unix epoch) to a relative passed
+ * duration (e.g. "16 second ago", "1 week ago", "3 years ago").
+ *
+ * @param {number} timestamp The number of milliseconds since the Unix epoch.
+ * @return {string} A relative passed duration.
+ */
 function dateToString(timestamp) {
   const commentDate = new Date(timestamp);
   const now = Date.now();
@@ -139,6 +197,19 @@ function dateToString(timestamp) {
   return years + ((years === 1) ? ' year ' : ' years ') + 'ago';
 }
 
+/**
+ * Callback for when a comment or reply is liked or disliked.
+ * 
+ * Users are granted one like or dislike per comment per session. Once the page
+ * is reloaded users are granted another like or dislike per comment even if
+ * they have already voted on a comment. Without user accounts, I could not implement
+ * a reliable way for each individual to recieve one like or dislike per comment
+ * regardless of the page session.
+ *
+ * @param {!Object<string, *>} comment The comment that was liked or disliked.
+ * @param {!Vote} voteType Vote.UP if comment was liked or Vote.DOWN if comment
+ *     was disliked.
+ */
 function likeComment(comment, voteType) {
   const likeCount = comment.container.querySelector('.comment-like-count');
   const dislikeCount = comment.container.querySelector('.comment-dislike-count');
@@ -180,10 +251,18 @@ function likeComment(comment, voteType) {
     break;
   }
 
+  // Update the specified comment's likes and dislikes in the server
+  // database.
   fetch('/like-comment?commentId=' + comment.id + '&likes=' +
         comment.likes + '&dislikes=' + comment.dislikes);
 }
 
+/**
+ * Callback to toggle a specified comment's reply and reply form dropdown.
+ *
+ * @param {!Object<string, *>} comment The comment whose reply dropdown
+ *     should be shown or hidden.
+ */
 function showReplies(comment) {
   const replySection = comment.container.querySelector('.comment-reply-section');
   if (replySection.style.display === 'block') {
@@ -193,18 +272,15 @@ function showReplies(comment) {
   }
 }
 
-function initPostCommentForm() {
-  const moreComments = document.getElementById('more-comments');
-  const postCommentForm = document.getElementById('post-comment');
-  moreComments.onclick = () => void fetchComments(moreComments.cursor);
-  postCommentForm.onsubmit = (event) => validateComment(event, undefined);
-  
-  postCommentForm['name'].onfocus = (event) =>
-    void event.target.classList.remove('comment-form-invalid');
-  postCommentForm['content'].onfocus = (event) =>
-    void event.target.classList.remove('comment-form-invalid');
-}
-
+/**
+ * Validates a comment or reply form before sending a request to create
+ * the comment.
+ *
+ * @param {!Event} event The relevant submission event.
+ * @param {?Object<string, *>} comment The parent comment of the reply
+ *     being submitted. May be undefined if a parent comment is being
+ *     submitted.
+ */
 function validateComment(event, comment) {
   const form = event.target;
   const name = form['name'];
