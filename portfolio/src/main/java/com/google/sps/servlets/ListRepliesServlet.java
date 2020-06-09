@@ -51,13 +51,6 @@ public class ListRepliesServlet extends HttpServlet {
   private final Gson gson = new Gson();
 
   /**
-   * Limits the number of replies returned per request
-   * to PAGE_SIZE.
-   */
-  private final FetchOptions fetchOptions =
-    FetchOptions.Builder.withLimit(PAGE_SIZE);
-
-  /**
    * Aids in the serialization of reply data to JSON through Gson.
    */
   private class Response {
@@ -81,14 +74,15 @@ public class ListRepliesServlet extends HttpServlet {
     
     // If a cursor is specified in the request, fetch the next PAGE_SIZE comments.
     // Otherwise, fetch the first PAGE_SIZE comments.
+    FetchOptions fetchOptions = FetchOptions.Builder.withLimit(PAGE_SIZE);
     String startCursor = request.getParameter("cursor");
     if (startCursor != null) {
       fetchOptions.startCursor(Cursor.fromWebSafeString(startCursor));
     }
 
-    // Fetch the next PAGE_SIZE parent comments and their replies for
-    // the determined project.
-    QueryResultList<Entity> replyResults = fetchReplies(parentId);
+    // Fetch the next PAGE_SIZE replies for the determined
+    // project and parent comment.
+    QueryResultList<Entity> replyResults = fetchReplies(parentId, fetchOptions);
     
     List<Comment> replies = new ArrayList<>();
     for (Entity entity : replyResults) {
@@ -107,7 +101,7 @@ public class ListRepliesServlet extends HttpServlet {
    * @param parentId The id of the comment whose replies shall be returned/
    * @return A list of at most PAGE_SIZE replies.
    */
-  private QueryResultList<Entity> fetchReplies(long parentId) {
+  private QueryResultList<Entity> fetchReplies(long parentId, FetchOptions fetchOptions) {
     Filter parentFilter = new FilterPredicate("parentId", FilterOperator.EQUAL, parentId);
     
     Query replyQuery = new Query("Comment")
