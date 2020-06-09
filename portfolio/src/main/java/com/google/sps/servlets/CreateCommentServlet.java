@@ -49,6 +49,7 @@ public class CreateCommentServlet extends HttpServlet {
     long dislikes = 0;
     long timestamp = System.currentTimeMillis();
     long parentId = Long.parseLong(request.getParameter("parentId"));
+    long replyCount = 0;
 
     // Parse the referring url to determine to which project page this
     // comment belongs.
@@ -73,6 +74,7 @@ public class CreateCommentServlet extends HttpServlet {
     comment.setProperty("timestamp", timestamp);
     comment.setProperty("parentId", parentId);
     comment.setProperty("project", project);
+    comment.setProperty("replyCount", replyCount);
     datastore.put(comment);
 
     // Send the user back to the page from which they came so they may view
