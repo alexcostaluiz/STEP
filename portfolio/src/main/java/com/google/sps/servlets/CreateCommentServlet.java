@@ -65,7 +65,7 @@ public class CreateCommentServlet extends HttpServlet {
       response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       return;
     }
-
+    
     Entity comment = new Entity("Comment");
     comment.setProperty("name", name);
     comment.setProperty("content", content);
@@ -77,6 +77,18 @@ public class CreateCommentServlet extends HttpServlet {
     comment.setProperty("replyCount", replyCount);
     datastore.put(comment);
 
+    if (parentId != -1) {
+      Key parentKey = KeyFactory.createKey("Comment", parentId);
+      try {
+        Entity parent = datastore.get(parentKey);
+        long parentReplyCount = (long) parent.getProperty("replyCount");
+        parent.setProperty("replyCount", ++parentReplyCount);
+        datastore.put(parent);
+      } catch (EntityNotFoundException e) {
+        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      }
+    }
+    
     // Send the user back to the page from which they came so they may view
     // their newly constructed comment or reply.
     response.sendRedirect(referer);
