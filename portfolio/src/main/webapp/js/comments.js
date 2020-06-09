@@ -79,10 +79,16 @@ async function fetchComments(cursor) {
   for (const comment of json.comments) {
     const container = createComment(comment);
     commentSection.insertBefore(container, moreComments);
-    fetchReplies(comment, null);
+    fetchReplies(comment, /* cursor= */ undefined);
   }
 }
 
+/**
+ * Fetch a batch of replies to the specified parent comment.
+ *
+ * @param {string} cursor The web-safe cursor string describing the position
+ *     at which the server is during reply retrieval.
+ */
 async function fetchReplies(parentComment, cursor) {
   // Display an animated loading icon to the user.
   const moreReplies = parentComment.container.querySelector('.more-replies');
@@ -90,9 +96,9 @@ async function fetchReplies(parentComment, cursor) {
   moreReplies.style.display = 'none';
   loadingReplies.style.display = 'block';
   
-  let url = '/list-replies';
+  let url = '/list-replies?parentId=' + parentComment.id;
   if (cursor !== undefined) {
-    url += '?cursor=' + cursor;
+    url += '&cursor=' + cursor;
   }
   const response = await fetch(url);
   const json = await response.json();
@@ -152,7 +158,7 @@ function createComment(comment) {
     replyCount.textContent = comment.replyCount;
 
     const moreReplies = container.querySelector('.more-replies');
-    moreReplies.onclick => void fetchReplies(comment, moreReplies.cursor);
+    moreReplies.onclick = (event) => void fetchReplies(comment, moreReplies.cursor);
 
     const postReplyForm = container.querySelector('.comment-reply-form');
     postReplyForm.onsubmit = (event) => validateComment(event, comment);
