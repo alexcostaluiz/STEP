@@ -110,12 +110,12 @@ async function fetchReplies(parentComment, cursor) {
   if (moreReplies.cursor !== json.cursor) {
     moreReplies.cursor = json.cursor;
 
-    if (json.replies.length === 5) {
+    if (json.comments.length === 5) {
       moreReplies.style.display = 'block';
     }
   }
 
-  for (const reply of json.replies) {
+  for (const reply of json.comments) {
     const container = createComment(reply);
     commentReplySection.insertBefore(container, moreReplies);
   }
