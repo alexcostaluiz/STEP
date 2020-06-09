@@ -57,9 +57,6 @@ public class ListRepliesServlet extends HttpServlet {
   private final FetchOptions fetchOptions =
     FetchOptions.Builder.withLimit(PAGE_SIZE);
 
-  /** The replies to be returned by this endpoint. */
-  private final List<Comment> replies = new ArrayList<>();
-
   /**
    * Aids in the serialization of reply data to JSON through Gson.
    */
@@ -92,6 +89,8 @@ public class ListRepliesServlet extends HttpServlet {
     // Fetch the next PAGE_SIZE parent comments and their replies for
     // the determined project.
     QueryResultList<Entity> replyResults = fetchReplies(parentId);
+    
+    List<Comment> replies = new ArrayList<>();
     for (Entity entity : replyResults) {
       replies.add(new Comment(entity));
     }
