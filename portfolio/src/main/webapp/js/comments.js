@@ -79,17 +79,39 @@ async function fetchComments(cursor) {
   for (const comment of json.comments) {
     const container = createComment(comment);
     commentSection.insertBefore(container, moreComments);
+    fetchReplies(comment, null);
+  }
+}
+
+async function fetchReplies(parentComment, cursor) {
+  // Display an animated loading icon to the user.
+  const moreReplies = parentComment.container.querySelector('.more-replies');
+  const loadingReplies = parentComment.container.querySelector('.loading-ripple');
+  moreReplies.style.display = 'none';
+  loadingReplies.style.display = 'block';
+  
+  let url = '/list-replies';
+  if (cursor !== undefined) {
+    url += '?cursor=' + cursor;
+  }
+  const response = await fetch(url);
+  const json = await response.json();
+  const commentReplySection = parentComment.container.querySelector('.comment-reply-section');
+
+  // Remove the loading icon and display the "more comments" button
+  // if more comments yet to be shown exist in the database.
+  loadingReplies.style.display = 'none';
+  if (moreReplies.cursor !== json.cursor) {
+    moreReplies.cursor = json.cursor;
+
+    if (json.comments.length === 5) {
+      moreReplies.style.display = 'block';
+    }
   }
 
   for (const reply of json.replies) {
     const container = createComment(reply);
-    const parent = document.getElementById(reply.parentId);
-    const commentReplySection = parent.querySelector('.comment-reply-section');
-    const postReplyForm = parent.querySelector('.comment-reply-form');
-    commentReplySection.insertBefore(container, postReplyForm);
-
-    const replyCount = parent.querySelector('.comment-replies-count');
-    replyCount.textContent = +replyCount.textContent + 1;
+    commentReplySection.insertBefore(container, moreReplies);
   }
 }
 
@@ -127,7 +149,10 @@ function createComment(comment) {
   // Initialize a reply form if this comment can be replied to.
   if (isParentComment) {
     replies.onclick = (event) => void showReplies(comment);
-    replyCount.textContent = '0';
+    replyCount.textContent = comment.replyCount;
+
+    const moreReplies = container.querySelector('.more-replies');
+    moreReplies.onclick => void fetchReplies(comment, moreReplies.cursor);
 
     const postReplyForm = container.querySelector('.comment-reply-form');
     postReplyForm.onsubmit = (event) => validateComment(event, comment);
