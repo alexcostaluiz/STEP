@@ -26,11 +26,10 @@ import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.sps.data.Comment;
+import com.google.sps.data.ListCommentsResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -60,23 +59,6 @@ public class ListCommentsServlet extends HttpServlet {
   
   /** Used to serialize comment data to JSON. */
   private final Gson gson = new Gson();
-
-  /**
-   * Aids in the serialization of comment data to JSON through Gson.
-   */
-  private class Response {
-    /** The comments to return. */
-    private final List<Comment> comments;
-    
-    /** A cursor pointing to the last retrieved comment. */
-    private String cursor;
-
-    /** Constructs the response of this endpoint. */
-    public Response(List<Comment> comments, String cursor) {
-      this.comments = comments;
-      this.cursor = cursor;
-    }
-  }
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -113,7 +95,7 @@ public class ListCommentsServlet extends HttpServlet {
 
     String cursor = commentResults.getCursor().toWebSafeString();
     response.setContentType("application/json;");
-    response.getWriter().println(gson.toJson(new Response(comments, cursor)));
+    response.getWriter().println(gson.toJson(new ListCommentsResponse(comments, cursor)));
   }
 
   /**

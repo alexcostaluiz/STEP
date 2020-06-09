@@ -24,6 +24,7 @@ import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.sps.data.Comment;
+import com.google.sps.data.ListCommentsResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,23 +51,6 @@ public class ListRepliesServlet extends HttpServlet {
   /** Used to serialize reply data to JSON. */
   private final Gson gson = new Gson();
 
-  /**
-   * Aids in the serialization of reply data to JSON through Gson.
-   */
-  private class Response {
-    /** The replies to return. */
-    private final List<Comment> replies;
-    
-    /** A cursor pointing to the last retrieved reply. */
-    private String cursor;
-
-    /** Constructs the response of this endpoint. */
-    public Response(List<Comment> replies, String cursor) {
-      this.replies = replies;
-      this.cursor = cursor;
-    }
-  }
-
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
     throws IOException {
@@ -91,7 +75,7 @@ public class ListRepliesServlet extends HttpServlet {
 
     String cursor = replyResults.getCursor().toWebSafeString();
     response.setContentType("application/json;");
-    response.getWriter().println(gson.toJson(new Response(replies, cursor)));
+    response.getWriter().println(gson.toJson(new ListCommentsResponse(replies, cursor)));
   }
 
   /**
