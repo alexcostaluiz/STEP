@@ -2,7 +2,7 @@
  * ListCommentsServlet.java
  * 06/05/2020
  *
- * An endpoint at which comments and replies of a specific project page
+ * An endpoint at which comments of a specific project page
  * may be retrieved from Datastore and returned in JSON.
  *
  * @author Alexander Luiz Costa
@@ -37,7 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /** 
- * Lists comments and replies of a specifc project page. 
+ * Lists comments of a specifc project page. 
  */
 @WebServlet("/list-comments")
 public class ListCommentsServlet extends HttpServlet {
@@ -129,6 +129,13 @@ public class ListCommentsServlet extends HttpServlet {
     return CompositeFilterOperator.and(projectFilter, parentFilter);
   }
 
+  /**
+   * Fetches and returns the parent comments associated with the specified parent
+   * comment id.
+   * 
+   * @param parentId The id of the comment whose replies shall be returned/
+   * @return A list of at most PAGE_SIZE replies.
+   */
   private QueryResultList<Entity> fetchComments(String project) {
     CompositeFilter commentFilter = createCommentFilter(project);
     
