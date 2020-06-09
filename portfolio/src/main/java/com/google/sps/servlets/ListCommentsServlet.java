@@ -68,9 +68,6 @@ public class ListCommentsServlet extends HttpServlet {
   private final FetchOptions fetchOptions =
     FetchOptions.Builder.withLimit(PAGE_SIZE);
 
-  /** The comments to be returned by this endpoint. */
-  private final List<Comment> comments = new ArrayList<>();
-
   /**
    * Aids in the serialization of comment data to JSON through Gson.
    */
@@ -114,6 +111,8 @@ public class ListCommentsServlet extends HttpServlet {
     // Fetch the next PAGE_SIZE parent comments and their replies for
     // the determined project.
     QueryResultList<Entity> commentResults = fetchComments(project);
+
+    List<Comment> comments = new ArrayList<>();
     for (Entity entity : commentResults) {
       comments.add(new Comment(entity));
     }
@@ -121,12 +120,6 @@ public class ListCommentsServlet extends HttpServlet {
     String cursor = commentResults.getCursor().toWebSafeString();
     response.setContentType("application/json;");
     response.getWriter().println(gson.toJson(new Response(comments, cursor)));
-  }
-
-  private CompositeFilter createCommentFilter(String project) {
-    Filter projectFilter = new FilterPredicate("project", FilterOperator.EQUAL, project);
-    Filter parentFilter = new FilterPredicate("parentId", FilterOperator.EQUAL, -1);
-    return CompositeFilterOperator.and(projectFilter, parentFilter);
   }
 
   /**
@@ -145,5 +138,18 @@ public class ListCommentsServlet extends HttpServlet {
     PreparedQuery preparedComments = datastore.prepare(commentQuery);
     
     return preparedComments.asQueryResultList(fetchOptions);
+  }
+  
+  /**
+   * Returns a filter for parent comments of the specified project.
+   * 
+   * @param project The project on which to filter comments.
+   * @return A composite filter combining a filter for parent comments and a
+   *     filter for the specified project.
+   */
+  private static CompositeFilter createCommentFilter(String project) {
+    Filter projectFilter = new FilterPredicate("project", FilterOperator.EQUAL, project);
+    Filter parentFilter = new FilterPredicate("parentId", FilterOperator.EQUAL, -1);
+    return CompositeFilterOperator.and(projectFilter, parentFilter);
   }
 }
