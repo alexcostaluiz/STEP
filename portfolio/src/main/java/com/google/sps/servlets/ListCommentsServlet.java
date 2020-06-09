@@ -23,12 +23,14 @@ import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.sps.data.Comment;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -40,29 +42,48 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/list-comments")
 public class ListCommentsServlet extends HttpServlet {
   /** The number of parent comments returned per request. */
-  static final int PAGE_SIZE = 5;
+  private static final int PAGE_SIZE = 5;
+  
+  /** 
+   * The valid project path names for the referring url
+   * to this endpoint.
+   */
+  private static final ImmutableList<String> VALID_PROJECTS =
+    ImmutableList.of("ugadining", "portflagship", "3dmodeling", "visualizations");
+  
+  /** 
+   * A Datastore service to interface with the underlying
+   * Datastore database. 
+   */
+  private final DatastoreService datastore =
+    DatastoreServiceFactory.getDatastoreService();
+  
+  /** Used to serialize comment data to JSON. */
+  private final Gson gson = new Gson();
+
+  /**
+   * Limits the number of parent comments returned per request
+   * to PAGE_SIZE.
+   */
+  private final FetchOptions fetchOptions =
+    FetchOptions.Builder.withLimit(PAGE_SIZE);
+
+  /** The comments to be returned by this endpoint. */
+  private final List<Comment> comments = new ArrayList<>();
 
   /**
    * Aids in the serialization of comment data to JSON through Gson.
    */
   private class Response {
     /** The comments to return. */
-    List<Comment> comments;
-    
-    /** The replies associated with the comments being returned. */
-    List<Comment> replies;
+    private final List<Comment> comments;
     
     /** A cursor pointing to the last retrieved comment. */
-    String cursor;
+    private String cursor;
 
-    /** 
-     * Constructs the response of this endpoint.
-     */
-    public Response(List<Comment> comments,
-                    List<Comment> replies,
-                    String cursor) {
+    /** Constructs the response of this endpoint. */
+    public Response(List<Comment> comments, String cursor) {
       this.comments = comments;
-      this.replies = replies;
       this.cursor = cursor;
     }
   }
@@ -70,10 +91,8 @@ public class ListCommentsServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
     throws IOException {
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    FetchOptions fetchOptions = FetchOptions.Builder.withLimit(PAGE_SIZE);
-
     // If a cursor is specified in the request, fetch the next PAGE_SIZE comments.
+    // Otherwise, fetch the first PAGE_SIZE comments.
     String startCursor = request.getParameter("cursor");
     if (startCursor != null) {
       fetchOptions.startCursor(Cursor.fromWebSafeString(startCursor));
@@ -85,60 +104,39 @@ public class ListCommentsServlet extends HttpServlet {
     if (project.equals("projects")) {
       project = "ugadining";
     }
-    List<String> projects = Arrays.asList("ugadining", "portflagship",
-                                          "3dmodeling", "visualizations");
-
+    
     // Reject unrecognized referring urls.
-    if (!projects.contains(project)) {
+    if (!VALID_PROJECTS.contains(project)) {
       response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       return;
     }
 
-    // Fetch the next PAGE_SIZE parent comments for the determined project.
-    Filter projectFilter = new FilterPredicate("project", FilterOperator.EQUAL, project);
-    Filter commentFilter = new FilterPredicate("parentId", FilterOperator.EQUAL, -1);
-    CompositeFilter compositeFilter = CompositeFilterOperator.
-      and(projectFilter, commentFilter);
-
-    Query commentQuery = new Query("Comment")
-      .setFilter(compositeFilter)
-      .addSort("timestamp", SortDirection.DESCENDING);
-    PreparedQuery preparedComments = datastore.prepare(commentQuery);
-
-    QueryResultList<Entity> commentResults;
-    try {
-      commentResults = preparedComments.asQueryResultList(fetchOptions);
-    } catch (Exception e) {
-      response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-      return;
-    }
-
-    List<Comment> comments = new ArrayList<>();
-    List<Long> parentIds = new ArrayList<>();
+    // Fetch the next PAGE_SIZE parent comments and their replies for
+    // the determined project.
+    QueryResultList<Entity> commentResults = fetchComments(project);
     for (Entity entity : commentResults) {
-      Comment comment = new Comment(entity);
-      comments.add(comment);
-      parentIds.add(comment.getId());
-      
-    }
-
-    // Fetch any replies associated with the PAGE_SIZE parent comments already fetched.
-    List<Comment> replies = new ArrayList<>();
-    if (!parentIds.isEmpty()) {
-      Filter parentFilter = new FilterPredicate("parentId", FilterOperator.IN, parentIds);
-      Query replyQuery = new Query("Comment")
-        .setFilter(parentFilter)
-        .addSort("timestamp", SortDirection.ASCENDING);
-      PreparedQuery preparedReplies = datastore.prepare(replyQuery);
-      
-      for (Entity entity : preparedReplies.asIterable()) {
-        replies.add(new Comment(entity));
-      }
+      comments.add(new Comment(entity));
     }
 
     String cursor = commentResults.getCursor().toWebSafeString();
-    Gson gson = new Gson();
     response.setContentType("application/json;");
-    response.getWriter().println(gson.toJson(new Response(comments, replies, cursor)));
+    response.getWriter().println(gson.toJson(new Response(comments, cursor)));
+  }
+
+  private CompositeFilter createCommentFilter(String project) {
+    Filter projectFilter = new FilterPredicate("project", FilterOperator.EQUAL, project);
+    Filter parentFilter = new FilterPredicate("parentId", FilterOperator.EQUAL, -1);
+    return CompositeFilterOperator.and(projectFilter, parentFilter);
+  }
+
+  private QueryResultList<Entity> fetchComments(String project) {
+    CompositeFilter commentFilter = createCommentFilter(project);
+    
+    Query commentQuery = new Query("Comment")
+      .setFilter(commentFilter)
+      .addSort("timestamp", SortDirection.DESCENDING);
+    PreparedQuery preparedComments = datastore.prepare(commentQuery);
+    
+    return preparedComments.asQueryResultList(fetchOptions);
   }
 }
