@@ -10,6 +10,7 @@
 package com.google.sps.data;
 
 import com.google.sps.data.Comment;
+import java.util.List;
 
 /**
  * Aids in the serialization of comment and reply data 
