@@ -110,7 +110,7 @@ async function fetchReplies(parentComment, cursor) {
   if (moreReplies.cursor !== json.cursor) {
     moreReplies.cursor = json.cursor;
 
-    if (json.comments.length === 5) {
+    if (json.replies.length === 5) {
       moreReplies.style.display = 'block';
     }
   }
