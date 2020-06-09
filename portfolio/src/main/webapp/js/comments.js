@@ -196,34 +196,42 @@ function dateToString(timestamp) {
   const month = day * 30;
   const year = day * 365;
 
+  // Do not allow elapsed time to appear negative, which may occur
+  // on very quick page reload.
   if (diff < 0) {
     diff = second;
   }
+  
+  if (diff < minute) {
+    const seconds = Math.floor(diff / second);
+    return seconds + ((seconds === 1) ? ' second ' : ' seconds ') + 'ago';
+  }
+  
+  if (diff < hour) {
+    const minutes = Math.floor(diff / minute);
+    return minutes + ((minutes === 1) ? ' minute ' : ' minutes ') + 'ago';
+  }
+  
+  if (diff < day) {
+    const hours = Math.floor(diff / hour);
+    return hours + ((hours === 1) ? ' hour ' : ' hours ') + 'ago';
+  }        
+  
+  if (diff < week) {
+    const days = Math.floor(diff / day);
+    return days + ((days === 1) ? ' day ' : ' days ') + 'ago';
+  }      
 
+  if (diff < month) {
+    const weeks = Math.floor(diff / week);
+    return weeks + ((weeks === 1) ? ' week ' : ' weeks ') + 'ago';
+  }
+  
   if (diff < year) {
-    if (diff < month) {
-      if (diff < week) {
-        if (diff < day) {
-          if (diff < hour) {
-            if (diff < minute) {
-              const seconds = Math.floor(diff / second);
-              return seconds + ((seconds === 1) ? ' second ' : ' seconds ') + 'ago';
-            }
-            const minutes = Math.floor(diff / minute);
-            return minutes + ((minutes === 1) ? ' minute ' : ' minutes ') + 'ago';
-          }
-          const hours = Math.floor(diff / hour);
-          return hours + ((hours === 1) ? ' hour ' : ' hours ') + 'ago';
-        }        
-        const days = Math.floor(diff / day);
-        return days + ((days === 1) ? ' day ' : ' days ') + 'ago';
-      }      
-      const weeks = Math.floor(diff / week);
-      return weeks + ((weeks === 1) ? ' week ' : ' weeks ') + 'ago';
-    }
     const months = Math.floor(diff / month);
     return months + ((months === 1) ? ' month ' : ' months ') + 'ago';
   }
+  
   const years = Math.floor(diff / year);
   return years + ((years === 1) ? ' year ' : ' years ') + 'ago';
 }
