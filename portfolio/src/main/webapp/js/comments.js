@@ -91,7 +91,7 @@ async function fetchComments(cursor) {
  */
 async function fetchReplies(parentComment, cursor) {
   // Display an animated loading icon to the user.
-  const moreReplies = parentComment.container.querySelector('.more-replies');
+  const moreReplies = parentComment.container.querySelector('.more-comments');
   const loadingReplies = parentComment.container.querySelector('.loading-ripple');
   moreReplies.style.display = 'none';
   loadingReplies.style.display = 'block';
@@ -157,7 +157,7 @@ function createComment(comment) {
     replies.onclick = (event) => void showReplies(comment);
     replyCount.textContent = comment.replyCount;
 
-    const moreReplies = container.querySelector('.more-replies');
+    const moreReplies = container.querySelector('.more-comments');
     moreReplies.onclick = (event) => void fetchReplies(comment, moreReplies.cursor);
 
     const postReplyForm = container.querySelector('.comment-reply-form');
