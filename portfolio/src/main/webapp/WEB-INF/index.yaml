@@ -1,0 +1,15 @@
+indexes:
+- kind: "Comment"
+  properties:
+  - name: "parentId"
+    direction: asc
+  - name: "project"
+    direction: asc
+  - name: "timestamp"
+    direction: desc
+- kind: "Comment"
+  properties:
+  - name: "parentId"
+    direction: asc
+  - name: "timestamp"
+    direction: asc
