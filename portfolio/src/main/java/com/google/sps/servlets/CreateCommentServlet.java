@@ -54,7 +54,7 @@ public class CreateCommentServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response)
     throws IOException {
     if (!userService.isUserLoggedIn()) {
-      response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
       return;
     }
 
