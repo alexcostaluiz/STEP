@@ -291,6 +291,27 @@ table.socials a {
   opacity: 1;
 }
 
+#post-comment-form-container {
+  position: relative;
+}
+
+#post-comment {
+  opacity: 0.5;
+}
+
+#login-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin-bottom: 0px;
+}
+
+#logout-button {
+  display: none;
+  float: right;
+}
+
 .comment-form-name {
   width: 33%;
 }
@@ -319,6 +340,7 @@ table.socials a {
 }
 
 .comment-reply-form {
+  display: none;
   margin-top: 32px;
   margin-bottom: 0px;
 }

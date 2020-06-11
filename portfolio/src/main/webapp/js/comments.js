@@ -18,9 +18,15 @@ const Vote = {
   DOWN: 'down',
 }
 
+/** @type {boolean} */
+let isUserLoggedIn = false;
+
+/** @type {?User} */
+let user = undefined;
+
 window.addEventListener('load', () => {
   initPostCommentForm();
-  fetchComments();
+  fetchUser();
 });
 
 /**
@@ -33,10 +39,40 @@ function initPostCommentForm() {
   
   const postCommentForm = document.getElementById('post-comment');
   postCommentForm.onsubmit = (event) => validateComment(event, undefined);
-  postCommentForm['name'].onfocus = (event) =>
+  postCommentForm.name.onfocus = (event) =>
     void event.target.classList.remove('comment-form-invalid');
-  postCommentForm['content'].onfocus = (event) =>
+  postCommentForm.content.onfocus = (event) =>
     void event.target.classList.remove('comment-form-invalid');
+}
+
+/**
+ * Fetch the currently logged in user, if one exists.
+ */
+async function fetchUser() {    
+  const response = await fetch('/user');
+  const json = await response.json();
+  isUserLoggedIn = json.isUserLoggedIn;
+  user = json.user;
+  
+  const loginButton = document.getElementById('login-button');
+  if (isUserLoggedIn) {
+    const postCommentForm = document.getElementById('post-comment');
+    postCommentForm.style.opacity = 1;
+    postCommentForm.content.disabled = false;
+    postCommentForm.post.disabled = false;
+    postCommentForm.name.disabled = false;
+    postCommentForm.name.value = json.user.email;
+
+    const logoutButton = document.getElementById('logout-button');
+    logoutButton.style.display = 'inline';
+    logoutButton.href = json.logoutURL;
+    
+    loginButton.style.display = 'none';
+  } else {
+    loginButton.href = json.loginURL;
+  }
+  
+  fetchComments();
 }
 
 /**
@@ -162,10 +198,15 @@ function createComment(comment) {
 
     const postReplyForm = container.querySelector('.comment-reply-form');
     postReplyForm.onsubmit = (event) => validateComment(event, comment);
-    postReplyForm['name'].onfocus = (event) =>
+    postReplyForm.name.onfocus = (event) =>
       void event.target.classList.remove('comment-form-invalid');
-    postReplyForm['content'].onfocus = (event) =>
-      void event.target.classList.remove('comment-form-invalid');    
+    postReplyForm.content.onfocus = (event) =>
+      void event.target.classList.remove('comment-form-invalid');
+    
+    if (isUserLoggedIn) {
+      postReplyForm.style.display = 'block';
+      postReplyForm.name.value = user.email;
+    }
   }
   
   comment.container = container;
@@ -322,8 +363,8 @@ function showReplies(comment) {
  */
 function validateComment(event, comment) {
   const form = event.target;
-  const name = form['name'];
-  const content = form['content'];
+  const name = form.name;
+  const content = form.content;
 
   let valid = true;
   if (name.value === '') {
@@ -340,7 +381,7 @@ function validateComment(event, comment) {
     if (comment !== undefined) {
       parentId = comment.id;
     }
-    form['parentId'].value = parentId;
+    form.parentId.value = parentId;
   }
   
   return valid;
