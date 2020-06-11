@@ -65,7 +65,10 @@ public class UserServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response)
     throws IOException {
     String referer = request.getHeader("referer");
-    referer = "/user";
+    if (referer == null) {
+      response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      return;
+    }
 
     boolean isUserLoggedIn = userService.isUserLoggedIn();
     User user = userService.getCurrentUser();
