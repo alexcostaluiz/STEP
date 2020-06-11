@@ -58,7 +58,7 @@ public class DeleteCommentServlet extends HttpServlet {
       Entity comment = datastore.get(commentKey);
       String commentUserId = (String) comment.getProperty("userId");
       if (userId.equals(commentUserId)) {
-        datastore.delete(comment);
+        datastore.delete(commentKey);
       } else {
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
       }
