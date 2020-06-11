@@ -73,13 +73,17 @@
             <div></div>
           </div>
           <p id="nothing-to-show">Nothing to show here.</p>
-          <form id="post-comment" action="/create-comment" method="post">
+          <div id="post-comment-form-container">
             <h4 style="margin: 32px 0px 16px 0px">Join the Discussion</h4>
-            <input class="comment-form-name" type="text" name="name" placeholder="Name"></input><br>
-            <textarea class="comment-form-content" name="content" placeholder="Leave a message..."></textarea><br>
-            <button type="submit">Post</button>
-            <input type="hidden" name="parentId"></input>
-          </form>
+            <form id="post-comment" action="/create-comment" method="post">
+              <input disabled class="comment-form-name" type="text" name="name" placeholder="Name"></input>
+              <a id="logout-button" class="button">Log out</a><br>
+              <textarea disabled class="comment-form-content" name="content" placeholder="Leave a message..."></textarea><br>
+              <button disabled type="submit" name="post">Post</button>
+              <input type="hidden" name="parentId"></input>
+            </form>
+            <a id="login-button" class="button">Log in with Google</a>
+          </div>
         </div>
       </div>
     </div>
