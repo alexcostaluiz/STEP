@@ -14,6 +14,11 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.collect.ImmutableList;
@@ -58,6 +63,25 @@ public class DeleteCommentServlet extends HttpServlet {
       Entity comment = datastore.get(commentKey);
       String commentUserId = (String) comment.getProperty("userId");
       if (userId.equals(commentUserId)) {
+        long parentId = (long) comment.getProperty("parentId");
+        if (parentId == -1) {
+          // Comment to delete is parent, must delete children too.
+          Filter parentFilter = new FilterPredicate("parentId", FilterOperator.EQUAL, commentId);
+          Query replyQuery = new Query("Comment")
+            .setFilter(parentFilter)
+            .setKeysOnly();
+          PreparedQuery preparedReplies = datastore.prepare(replyQuery);
+          for (Entity entity : preparedReplies.asIterable()) {
+            datastore.delete(entity.getKey());
+          }
+        } else {
+          // Comment is child, must decrement parent reply count.
+          Key parentKey = KeyFactory.createKey("Comment", parentId);
+          Entity parent = datastore.get(parentKey);
+          long parentReplyCount = (long) parent.getProperty("replyCount");
+          parent.setProperty("replyCount", --parentReplyCount);
+          datastore.put(parent);
+        }
         datastore.delete(commentKey);
       } else {
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
