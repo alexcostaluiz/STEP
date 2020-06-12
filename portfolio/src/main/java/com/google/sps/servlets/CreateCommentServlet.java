@@ -15,6 +15,8 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.Arrays;
@@ -42,10 +44,21 @@ public class CreateCommentServlet extends HttpServlet {
    */
   private final DatastoreService datastore =
     DatastoreServiceFactory.getDatastoreService();
+
+  /** 
+   * A UserService to retrieve information about the logged in user.
+   */
+  private final UserService userService = UserServiceFactory.getUserService();
   
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
     throws IOException {
+    if (!userService.isUserLoggedIn()) {
+      response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+      return;
+    }
+
+    String userId = userService.getCurrentUser().getUserId();
     String name = request.getParameter("name");
     String content = request.getParameter("content");
     long likes = 0;
@@ -70,6 +83,7 @@ public class CreateCommentServlet extends HttpServlet {
     }
     
     Entity comment = new Entity("Comment");
+    comment.setProperty("userId", userId);
     comment.setProperty("name", name);
     comment.setProperty("content", content);
     comment.setProperty("likes", likes);

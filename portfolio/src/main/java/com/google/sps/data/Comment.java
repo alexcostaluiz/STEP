@@ -17,6 +17,9 @@ public class Comment {
   /** The id of this comment. */
   private final long id;
 
+  /** The id of the user who created this comment. */
+  private final String userId;
+
   /** The display name of the individual who submitted this comment. */
   private final String name;
 
@@ -55,6 +58,7 @@ public class Comment {
    */
   public Comment(Entity entity) {
     this.id = entity.getKey().getId();
+    this.userId = (String) entity.getProperty("userId");
     this.name = (String) entity.getProperty("name");
     this.content = (String) entity.getProperty("content");
     this.likes = (long) entity.getProperty("likes");
