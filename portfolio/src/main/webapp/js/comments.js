@@ -37,7 +37,9 @@ function initPopupModal() {
   const popup = document.querySelector('.popup-modal');
   const popupContent = popup.querySelector('.popup-modal-content');
   popup.onclick = (event) => void closePopupModal();
-  popupContent.onclick = (event) => {};
+  popupContent.onclick = (event) => {
+    event.stopPropagation();
+  };
 }
 
 /**
@@ -198,7 +200,7 @@ function createComment(comment) {
   thumbDown.onclick = (event) => void likeComment(comment, Vote.DOWN);
   thumbUpCount.textContent = comment.likes;
   thumbDownCount.textContent = comment.dislikes;
-  if (user.userId === comment.userId) {
+  if (isUserLoggedIn && user.userId === comment.userId) {
     deleteIcon.onclick = (event) => void deleteComment(comment);
     deleteIcon.style.display = 'inline';
   }
@@ -360,7 +362,13 @@ function likeComment(comment, voteType) {
 function deleteComment(comment) {
   const onConfirm = async () => {
     closePopupModal();
-    const response = await fetch('/delete-comment?commentId=' + comment.id);
+    const response = await fetch('/delete-comment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: 'commentId=' + comment.id,
+    });
     console.log(response.status);
     if (response.status === 200) {
       comment.container.style.display = 'none';
