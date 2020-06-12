@@ -25,9 +25,20 @@ let isUserLoggedIn = false;
 let user = undefined;
 
 window.addEventListener('load', () => {
+  initPopupModal();
   initPostCommentForm();
   fetchUser();
 });
+
+/** 
+ * Initialize the popup modal for deleting comments.
+ */
+function initPopupModal() {
+  const popup = document.querySelector('.popup-modal');
+  const popupContent = popup.querySelector('.popup-modal-content');
+  popup.onclick = (event) => void closePopupModal();
+  popupContent.onclick = (event) => {};
+}
 
 /**
  * Initialize the "more comments" pagination button and comment
@@ -181,12 +192,16 @@ function createComment(comment) {
   content.textContent = comment.content;
   timestamp.textContent = dateToString(comment.timestamp);
 
-  const [thumbUp, thumbDown, replies] = container.querySelectorAll('img');
+  const [deleteIcon, thumbUp, thumbDown, replies] = container.querySelectorAll('img');
   const [thumbUpCount, thumbDownCount, replyCount] = container.querySelectorAll('span');
   thumbUp.onclick = (event) => void likeComment(comment, Vote.UP);
   thumbDown.onclick = (event) => void likeComment(comment, Vote.DOWN);
   thumbUpCount.textContent = comment.likes;
   thumbDownCount.textContent = comment.dislikes;
+  if (user.userId === comment.userId) {
+    deleteIcon.onclick = (event) => void deleteComment(comment);
+    deleteIcon.style.display = 'inline';
+  }
 
   // Initialize a reply form if this comment can be replied to.
   if (isParentComment) {
@@ -335,6 +350,46 @@ function likeComment(comment, voteType) {
   // database.
   fetch('/like-comment?commentId=' + comment.id + '&likes=' +
         comment.likes + '&dislikes=' + comment.dislikes);
+}
+
+/**
+ * Callback to delete a comment.
+ *
+ * @param {!Object<string, *>} comment The comment to delete.
+ */
+function deleteComment(comment) {
+  const onConfirm = async () => {
+    closePopupModal();
+    const response = await fetch('/delete-comment?commentId=' + comment.id);
+    console.log(response.status);
+    if (response.status === 200) {
+      comment.container.style.display = 'none';
+    }
+  };
+  showPopup(onConfirm);
+}
+
+/**
+ * Show the modal popup.
+ * 
+ * @return {!Promise} True if the popup is confirmed, false otherwise.
+ */
+function showPopup(onConfirm) {
+  const popup = document.querySelector('.popup-modal');
+  popup.style.display = 'block';
+  const [confirm, cancel] = popup.querySelectorAll('button');
+  confirm.onclick = onConfirm; 
+  cancel.onclick = () => {
+    closePopupModal();
+  };
+}
+
+/**
+ * Close the modal popup.
+ */
+function closePopupModal() {
+  const popup = document.querySelector('.popup-modal');
+  popup.style.display = 'none';
 }
 
 /**
