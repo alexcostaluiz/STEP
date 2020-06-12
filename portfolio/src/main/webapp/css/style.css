@@ -341,6 +341,7 @@ table.socials a {
 }
 
 .comment-reply-container {
+  position: relative;
   border: 1px solid rgb(209, 209, 209);
   border-radius: 4px;
   margin: 16px 0px 16px 0px;
