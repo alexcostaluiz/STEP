@@ -36,7 +36,7 @@ window.addEventListener('load', () => {
 function initPopupModal() {
   const popup = document.querySelector('.popup-modal');
   const popupContent = popup.querySelector('.popup-modal-content');
-  popup.onclick = (event) => void closePopupModal();
+  popup.onclick = () => void closePopupModal();
   popupContent.onclick = (event) => {
     event.stopPropagation();
   };
