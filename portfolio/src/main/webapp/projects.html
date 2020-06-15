@@ -89,6 +89,7 @@
     </div>
 
     <div id="comment-container-template" class="comment-container" style="display: none">
+      <img src="/images/delete.svg" class="comment-icon comment-delete-icon">
       <p class="comment-name"></p>
       <p class="comment-timestamp"></p>
       <p class="comment-content"></p>
@@ -120,6 +121,7 @@
     </div>
 
     <div id="comment-reply-container-template" class="comment-reply-container" style="display: none">
+      <img src="/images/delete.svg" class="comment-icon comment-delete-icon">      
       <p class="comment-name"></p>
       <p class="comment-timestamp"></p>
       <p class="comment-content"></p>
@@ -128,6 +130,15 @@
         <span class="comment-like-count"></span>
         <img src="/images/thumb_down.svg" class="comment-icon">
         <span class="comment-dislike-count"></span>
+      </div>
+    </div>
+
+    <div class="popup-modal">
+      <div class="popup-modal-content">
+        <h5>Delete comment?</h5>
+        <span>This will permanently delete your comment.</span>
+        <button>Delete</button>
+        <button>Cancel</button>
       </div>
     </div>
     

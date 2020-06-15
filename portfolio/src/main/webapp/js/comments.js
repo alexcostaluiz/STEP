@@ -25,9 +25,22 @@ let isUserLoggedIn = false;
 let user = undefined;
 
 window.addEventListener('load', () => {
+  initPopupModal();
   initPostCommentForm();
   fetchUser();
 });
+
+/** 
+ * Initialize the popup modal for deleting comments.
+ */
+function initPopupModal() {
+  const popup = document.querySelector('.popup-modal');
+  const popupContent = popup.querySelector('.popup-modal-content');
+  popup.onclick = () => void closePopupModal();
+  popupContent.onclick = (event) => {
+    event.stopPropagation();
+  };
+}
 
 /**
  * Initialize the "more comments" pagination button and comment
@@ -181,20 +194,24 @@ function createComment(comment) {
   content.textContent = comment.content;
   timestamp.textContent = dateToString(comment.timestamp);
 
-  const [thumbUp, thumbDown, replies] = container.querySelectorAll('img');
+  const [deleteIcon, thumbUp, thumbDown, replies] = container.querySelectorAll('img');
   const [thumbUpCount, thumbDownCount, replyCount] = container.querySelectorAll('span');
-  thumbUp.onclick = (event) => void likeComment(comment, Vote.UP);
-  thumbDown.onclick = (event) => void likeComment(comment, Vote.DOWN);
+  thumbUp.onclick = () => void likeComment(comment, Vote.UP);
+  thumbDown.onclick = () => void likeComment(comment, Vote.DOWN);
   thumbUpCount.textContent = comment.likes;
   thumbDownCount.textContent = comment.dislikes;
+  if (isUserLoggedIn && user.userId === comment.userId) {
+    deleteIcon.onclick = () => void deleteComment(comment);
+    deleteIcon.style.display = 'inline';
+  }
 
   // Initialize a reply form if this comment can be replied to.
   if (isParentComment) {
-    replies.onclick = (event) => void showReplies(comment);
+    replies.onclick = () => void showReplies(comment);
     replyCount.textContent = comment.replyCount;
 
     const moreReplies = container.querySelector('.more-comments');
-    moreReplies.onclick = (event) => void fetchReplies(comment, moreReplies.cursor);
+    moreReplies.onclick = () => void fetchReplies(comment, moreReplies.cursor);
 
     const postReplyForm = container.querySelector('.comment-reply-form');
     postReplyForm.onsubmit = (event) => validateComment(event, comment);
@@ -335,6 +352,69 @@ function likeComment(comment, voteType) {
   // database.
   fetch('/like-comment?commentId=' + comment.id + '&likes=' +
         comment.likes + '&dislikes=' + comment.dislikes);
+}
+
+/**
+ * Callback to delete a comment.
+ *
+ * @param {!Object<string, *>} comment The comment to delete.
+ */
+function deleteComment(comment) {
+  const onConfirm = async () => {
+    closePopupModal();
+    const response = await fetch('/delete-comment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: 'commentId=' + comment.id,
+    });
+    if (response.status === 200) {
+      comment.container.style.display = 'none';
+      if (comment.parentId !== -1) {
+        const parent = document.getElementById(comment.parentId);
+        const replyCount = parent.querySelector('.comment-replies-count');
+        --replyCount.textContent;
+      }
+      const commentSection = document.querySelector('.comment-section');
+      const comments = document.querySelectorAll('.comment-container');
+      let noCommentsExist = true;
+      for (const comment of comments) {
+        if (comment.style.display !== 'none') {
+          noCommentsExist = false;
+          break;
+        }
+      }
+      if (noCommentsExist) {
+        const nothingToShow = document.getElementById('nothing-to-show');
+        nothingToShow.style.display = 'block';
+      }
+    }
+  };
+  showPopup(onConfirm);
+}
+
+/**
+ * Show the modal popup.
+ * 
+ * @return {!Promise} True if the popup is confirmed, false otherwise.
+ */
+function showPopup(onConfirm) {
+  const popup = document.querySelector('.popup-modal');
+  popup.style.display = 'block';
+  const [confirm, cancel] = popup.querySelectorAll('button');
+  confirm.onclick = onConfirm; 
+  cancel.onclick = () => {
+    closePopupModal();
+  };
+}
+
+/**
+ * Close the modal popup.
+ */
+function closePopupModal() {
+  const popup = document.querySelector('.popup-modal');
+  popup.style.display = 'none';
 }
 
 /**
