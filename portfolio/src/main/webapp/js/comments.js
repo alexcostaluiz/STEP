@@ -376,6 +376,19 @@ function deleteComment(comment) {
         const replyCount = parent.querySelector('.comment-replies-count');
         replyCount.textContent = +replyCount.textContent - 1;
       }
+      const commentSection = document.querySelector('.comment-section');
+      const comments = document.querySelectorAll('.comment-container');
+      let noCommentsExist = true;
+      for (const comment of comments) {
+        if (comment.style.display !== 'none') {
+          noCommentsExist = false;
+          break;
+        }
+      }
+      if (noCommentsExist) {
+        const nothingToShow = document.getElementById('nothing-to-show');
+        nothingToShow.style.display = 'block';
+      }
     }
   };
   showPopup(onConfirm);
