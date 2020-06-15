@@ -374,7 +374,7 @@ function deleteComment(comment) {
       if (comment.parentId !== -1) {
         const parent = document.getElementById(comment.parentId);
         const replyCount = parent.querySelector('.comment-replies-count');
-        replyCount.textContent = +replyCount.textContent - 1;
+        --replyCount.textContent;
       }
       const commentSection = document.querySelector('.comment-section');
       const comments = document.querySelectorAll('.comment-container');
