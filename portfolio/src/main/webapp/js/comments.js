@@ -196,22 +196,22 @@ function createComment(comment) {
 
   const [deleteIcon, thumbUp, thumbDown, replies] = container.querySelectorAll('img');
   const [thumbUpCount, thumbDownCount, replyCount] = container.querySelectorAll('span');
-  thumbUp.onclick = (event) => void likeComment(comment, Vote.UP);
-  thumbDown.onclick = (event) => void likeComment(comment, Vote.DOWN);
+  thumbUp.onclick = () => void likeComment(comment, Vote.UP);
+  thumbDown.onclick = () => void likeComment(comment, Vote.DOWN);
   thumbUpCount.textContent = comment.likes;
   thumbDownCount.textContent = comment.dislikes;
   if (isUserLoggedIn && user.userId === comment.userId) {
-    deleteIcon.onclick = (event) => void deleteComment(comment);
+    deleteIcon.onclick = () => void deleteComment(comment);
     deleteIcon.style.display = 'inline';
   }
 
   // Initialize a reply form if this comment can be replied to.
   if (isParentComment) {
-    replies.onclick = (event) => void showReplies(comment);
+    replies.onclick = () => void showReplies(comment);
     replyCount.textContent = comment.replyCount;
 
     const moreReplies = container.querySelector('.more-comments');
-    moreReplies.onclick = (event) => void fetchReplies(comment, moreReplies.cursor);
+    moreReplies.onclick = () => void fetchReplies(comment, moreReplies.cursor);
 
     const postReplyForm = container.querySelector('.comment-reply-form');
     postReplyForm.onsubmit = (event) => validateComment(event, comment);
