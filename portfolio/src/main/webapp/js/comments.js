@@ -18,6 +18,20 @@ const Vote = {
   DOWN: 'down',
 }
 
+/**
+ * Types of comment vote actions.
+ *
+ * @enum {number}
+ */
+const VoteAction = {
+  LIKED: 0,
+  DISLIKED: 1,
+  UNLIKED: 2,
+  UNDISLIKED: 3,
+  LIKED_TO_DISLIKED: 4,
+  DISLIKED_TO_LIKED: 5,
+}
+
 /** @type {boolean} */
 let isUserLoggedIn = false;
 
@@ -227,8 +241,18 @@ function createComment(comment) {
   }
   
   comment.container = container;
-  comment.liked = false;
-  comment.disliked = false;
+  if (isUserLoggedIn) {
+    if (comment.likeUsers.includes(user.userId)) {
+      comment.liked = true;
+    } else {
+      comment.liked = false;
+    }
+    if (comment.dislikeUsers.includes(user.userId)) {
+      comment.disliked = true;
+    } else {
+      comment.disliked = false;
+    }
+  }
   
   return container;
 }
@@ -308,9 +332,14 @@ function dateToString(timestamp) {
  *     was disliked.
  */
 function likeComment(comment, voteType) {
+  if (!isUserLoggedIn) {
+    return;
+  }
+  
   const likeCount = comment.container.querySelector('.comment-like-count');
   const dislikeCount = comment.container.querySelector('.comment-dislike-count');
-  
+
+  let voteAction = undefined;
   switch (voteType) {
   case Vote.UP:
     if (comment.disliked === true) {
@@ -318,13 +347,16 @@ function likeComment(comment, voteType) {
       comment.liked = true;
       likeCount.textContent = ++comment.likes;
       dislikeCount.textContent = --comment.dislikes;
+      voteAction = VoteAction.DISLIKED_TO_LIKED;
     } else {
       if (comment.liked === false) {
         comment.liked = true;
         likeCount.textContent = ++comment.likes;
+        voteAction = VoteAction.LIKED;
       } else {
         comment.liked = false;
         likeCount.textContent = --comment.likes;
+        voteAction = VoteAction.UNLIKED;
       }
     }
     break;
@@ -334,13 +366,16 @@ function likeComment(comment, voteType) {
       comment.disliked = true;
       likeCount.textContent = --comment.likes;
       dislikeCount.textContent = ++comment.dislikes;
+      voteAction = VoteAction.LIKED_TO_DISLIKED;
     } else {
       if (comment.disliked === false) {
         comment.disliked = true;
         dislikeCount.textContent = ++comment.dislikes;
+        voteAction = VoteAction.DISLIKED;
       } else {
         comment.disliked = false;
         dislikeCount.textContent = --comment.dislikes;
+        voteAction = VoteAction.UNDISLIKED;
       }
     }
     break;
@@ -351,7 +386,8 @@ function likeComment(comment, voteType) {
   // Update the specified comment's likes and dislikes in the server
   // database.
   fetch('/like-comment?commentId=' + comment.id + '&likes=' +
-        comment.likes + '&dislikes=' + comment.dislikes);
+        comment.likes + '&dislikes=' + comment.dislikes +
+        '&action=' + voteAction);
 }
 
 /**
