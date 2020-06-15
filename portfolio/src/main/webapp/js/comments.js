@@ -369,9 +369,13 @@ function deleteComment(comment) {
       },
       body: 'commentId=' + comment.id,
     });
-    console.log(response.status);
     if (response.status === 200) {
       comment.container.style.display = 'none';
+      if (comment.parentId !== -1) {
+        const parent = document.getElementById(comment.parentId);
+        const replyCount = parent.querySelector('.comment-replies-count');
+        replyCount.textContent = +replyCount.textContent - 1;
+      }
     }
   };
   showPopup(onConfirm);
