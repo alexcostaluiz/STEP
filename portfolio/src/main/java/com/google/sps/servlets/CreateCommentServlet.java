@@ -19,6 +19,7 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.servlet.annotation.WebServlet;
@@ -66,6 +67,12 @@ public class CreateCommentServlet extends HttpServlet {
     long timestamp = System.currentTimeMillis();
     long parentId = Long.parseLong(request.getParameter("parentId"));
     long replyCount = 0;
+    List<String> likeUsers = new ArrayList<>();
+    List<String> dislikeUsers = new ArrayList<>();
+    
+    // Avoid empty lists being stored as null properties in Datastore.
+    likeUsers.add("ignore");
+    dislikeUsers.add("ignore");
 
     // Parse the referring url to determine to which project page this
     // comment belongs.
@@ -92,6 +99,8 @@ public class CreateCommentServlet extends HttpServlet {
     comment.setProperty("parentId", parentId);
     comment.setProperty("project", project);
     comment.setProperty("replyCount", replyCount);
+    comment.setProperty("likeUsers", likeUsers);
+    comment.setProperty("dislikeUsers", dislikeUsers);
     datastore.put(comment);
 
     if (parentId != -1) {
