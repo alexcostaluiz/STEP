@@ -9,6 +9,7 @@
 package com.google.sps.data;
 
 import com.google.appengine.api.datastore.Entity;
+import java.util.List;
 
 /**
  * A user comment or reply to a comment on a projects page.
@@ -50,6 +51,12 @@ public class Comment {
    */
   private final long replyCount;
 
+  /** A list of users who have liked this comment. */
+  private final List<String> likeUsers;
+
+  /** A list of users who have disliked this comment. */  
+  private final List<String> dislikeUsers;
+
   /**
    * Constructs a new comment instance from a Datastore entity.
    * @see com.google.appengine.api.datastore.Entity
@@ -65,11 +72,9 @@ public class Comment {
     this.dislikes = (long) entity.getProperty("dislikes");
     this.timestamp = (long) entity.getProperty("timestamp");
     this.parentId = (long) entity.getProperty("parentId");
-    if (this.parentId == -1) {
-      replyCount = (long) entity.getProperty("replyCount");
-    } else {
-      replyCount = 0;
-    }
+    this.replyCount = (long) entity.getProperty("replyCount");
+    this.likeUsers = (List) entity.getProperty("likeUsers");
+    this.dislikeUsers = (List) entity.getProperty("dislikeUsers");
   }
 
   /**
