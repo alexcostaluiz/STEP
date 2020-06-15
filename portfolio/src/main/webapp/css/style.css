@@ -383,9 +383,15 @@ table.socials a {
   background-color: rgb(255, 255, 255);
   border-radius: 4px;
   overflow: hidden;
+  box-shadow: 4px 4px 5px rgb(0, 0, 0, 0.1);
 }
 
 .popup-modal-content h5 {
+  margin-bottom: 16px;
+}
+
+.popup-modal-content span {
+  display: inline-block;
   margin-bottom: 24px;
 }
 
