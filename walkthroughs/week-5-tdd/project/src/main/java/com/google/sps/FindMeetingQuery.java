@@ -80,7 +80,7 @@ public final class FindMeetingQuery {
     }
     sortedStartsAndEnds.add(new TimeMark(TimeRange.END_OF_DAY + 1, Mark.START));
 
-    Collection<TimeRange> results = new ArrayList<>();
+    Collection<TimeRange> openTimeSlots = new ArrayList<>();
     int start = TimeRange.START_OF_DAY;
     int end = TimeRange.END_OF_DAY;
     int eventsOverlapping = 0;
@@ -98,7 +98,7 @@ public final class FindMeetingQuery {
           if (eventsOverlapping == 0) {
             end = timeMark.time;
             if (end - start >= request.getDuration()) {
-              results.add(TimeRange.fromStartEnd(start, end, false));
+              openTimeSlots.add(TimeRange.fromStartEnd(start, end, false));
             }
           }
           eventsOverlapping++;
@@ -109,7 +109,7 @@ public final class FindMeetingQuery {
       }
     }
     
-    return results;
+    return openTimeSlots;
   }
 
   private static boolean areAttendeesRelevant(Event event, MeetingRequest request) {
