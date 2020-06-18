@@ -22,6 +22,7 @@
  */
 package com.google.sps;
 
+import com.google.common.collect.TreeMultiset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
 public final class FindMeetingQuery {
 
   /** Describes a type of time marking. */
-  private static enum Mark { START, END }
+  private static enum Mark { END, START }
 
   /** 
    * A mark in time. Either the start or 
@@ -47,9 +48,16 @@ public final class FindMeetingQuery {
     /** The type of this mark. */
     private Mark mark;
 
-    public TimeMark(int time, Mark mark) {
+    /** 
+     * Whether the significance of this time 
+     * mark is optional.
+     */
+    private boolean optional;
+
+    public TimeMark(int time, Mark mark, boolean optional) {
       this.time = time;
       this.mark = mark;
+      this.optional = optional;
     }
   }
 
@@ -58,7 +66,21 @@ public final class FindMeetingQuery {
    * chronological order.
    */
   private static final Comparator<TimeMark> ORDER_CHRONOLOGICALLY =
-    (a, b) -> Long.compare(a.time, b.time);
+    (a, b) -> {
+      int compare = Long.compare(a.time, b.time);
+      if (compare == 0) {
+        return Long.compare(a.mark.ordinal(), b.mark.ordinal());
+      } else {
+        return compare;
+      }
+    };
+
+  /**
+   * The relevance of an event as it pertains to its attendees in
+   * comparison to those attendees or optional attendees of the 
+   * specified meeting request.
+   */
+  private static enum Relevance { MANDATORY, OPTIONAL, NONE }
 
   /**
    * Returns a list of open time slots for the specified meeting request.
@@ -68,56 +90,91 @@ public final class FindMeetingQuery {
    * @return A list of open time slots for the specified request.
    */
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-    PriorityQueue<TimeMark> sortedStartsAndEnds = new PriorityQueue<>(ORDER_CHRONOLOGICALLY);
+    TreeMultiset<TimeMark> sortedStartsAndEnds = TreeMultiset.create(ORDER_CHRONOLOGICALLY);
     
     for (Event event : events) {
-      if (areAttendeesRelevant(event, request)) {
-        TimeMark start = new TimeMark(event.getWhen().start(), Mark.START);
-        TimeMark end = new TimeMark(event.getWhen().end(), Mark.END);
-        sortedStartsAndEnds.add(start);
-        sortedStartsAndEnds.add(end);
-      }
-    }
-    sortedStartsAndEnds.add(new TimeMark(TimeRange.END_OF_DAY + 1, Mark.START));
-
-    Collection<TimeRange> openTimeSlots = new ArrayList<>();
-    int start = TimeRange.START_OF_DAY;
-    int end = TimeRange.END_OF_DAY;
-    int eventsOverlapping = 0;
-    TimeMark timeMark;
-    while ((timeMark = sortedStartsAndEnds.poll()) != null) {
-      switch (timeMark.mark) {
-        case END:
-          eventsOverlapping--;
-          if (eventsOverlapping == 0) {
-            start = timeMark.time;
-          }
+      Relevance relevance = getAttendeeRelevance(event, request);
+      boolean optional = false;
+      switch (relevance) {
+        case OPTIONAL:
+          optional = true;
+          // Fall through.
+        case MANDATORY:
+          TimeMark start = new TimeMark(event.getWhen().start(), Mark.START, optional);
+          TimeMark end = new TimeMark(event.getWhen().end(), Mark.END, optional);
+          sortedStartsAndEnds.add(start);
+          sortedStartsAndEnds.add(end);
           break;
-        
-        case START:
-          if (eventsOverlapping == 0) {
-            end = timeMark.time;
-            if (end - start >= request.getDuration()) {
-              openTimeSlots.add(TimeRange.fromStartEnd(start, end, false));
-            }
-          }
-          eventsOverlapping++;
-          break;
-        
         default:
           break;
       }
     }
+    sortedStartsAndEnds.add(new TimeMark(TimeRange.END_OF_DAY + 1, Mark.START, false));
+    
+    boolean consideringOptionals = true;
+    Collection<TimeRange> openTimeSlots = new ArrayList<>();
+    do {
+      int start = TimeRange.START_OF_DAY;
+      int end = TimeRange.END_OF_DAY;
+      int eventsOverlapping = 0;
+      for (TimeMark timeMark : sortedStartsAndEnds) {
+        if (consideringOptionals || !timeMark.optional) {
+          switch (timeMark.mark) {
+            case END:
+              eventsOverlapping--;
+              if (eventsOverlapping == 0) {
+                start = timeMark.time;
+              }
+              break;
+            
+            case START:
+              if (eventsOverlapping == 0) {
+                end = timeMark.time;
+                if (end - start >= request.getDuration()) {
+                  openTimeSlots.add(TimeRange.fromStartEnd(start, end, false));
+                }
+              }
+              eventsOverlapping++;
+              break;
+              
+            default:
+              break;
+          }
+        }
+      }
+      consideringOptionals = !consideringOptionals;
+    } while (openTimeSlots.isEmpty() && !consideringOptionals);
     
     return openTimeSlots;
   }
 
-  private static boolean areAttendeesRelevant(Event event, MeetingRequest request) {
-    for (String attendee : event.getAttendees()) {
-      if (request.getAttendees().contains(attendee)) {
-        return true;
+  /**
+   * Returns the relevance of a specified event as its attendees relate to those of the
+   * specified meeting request.
+   * 
+   * @param event The event whose relevance should be calculated.
+   * @param request The meeting request to which to compare the specified event.
+   * @return MANDATORY if event contains a matching attendee to request, OPTIONAL if
+   *     event contains an attendee matching an optional attendee of request, and NONE
+   *     otherwise.
+   */
+  private static Relevance getAttendeeRelevance(Event event, MeetingRequest request) {
+    for (String attendee : request.getAttendees()) {
+      if (event.getAttendees().contains(attendee)) {
+        return Relevance.MANDATORY;
       }
     }
-    return false;
+
+    for (String optional : request.getOptionalAttendees()) {
+      if (event.getAttendees().contains(optional)) {
+        if (request.getAttendees().isEmpty()) {
+          return Relevance.MANDATORY;
+        } else {
+          return Relevance.OPTIONAL;
+        }
+      }
+    }
+
+    return Relevance.NONE;
   }
 }
